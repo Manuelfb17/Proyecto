@@ -14,31 +14,30 @@ st.set_page_config(
 )
 
 # ----------------------
-# BANNER SUPERIOR FIJO (imagen a todo el ancho)
+# BANNER SUPERIOR (imagen a todo el ancho que se desliza con scroll)
 # ----------------------
 st.markdown(
     """
     <style>
-    .banner-fixed {
-        position: fixed;
+    .banner-top {
+        position: relative; /* ya no es fijo, sube con el scroll */
         top: 0;
         left: 0;
         width: 100%;
-        z-index: 999;
         overflow: hidden;
         background-color: white;
         box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
     }
-    .banner-fixed img {
+    .banner-top img {
         width: 100%;
-        height: 280px;   /* altura más grande para ver letras completas */
-        object-fit: cover; /* cubre todo el ancho */
+        height: 280px;   /* altura ajustada */
+        object-fit: cover; /* que cubra todo el ancho */
     }
     .content {
-        margin-top: 290px;  /* espacio debajo del banner */
+        margin-top: 20px;  /* pequeño espacio debajo del banner */
     }
     </style>
-    <div class="banner-fixed">
+    <div class="banner-top">
         <img src="https://www.marco.com.pe/wp-content/uploads/2021/01/marco-7.jpg" alt="Marco Peru Banner">
     </div>
     <div class="content">
@@ -53,15 +52,12 @@ st.title("Registro de Horas Extra")
 
 st.write("Completa los datos para calcular el pago de tus horas extra.")
 
-# Lista de feriados en Perú 2025
+# lista de feriados en Perú 2025
 feriados = [
     "2025-01-01", "2025-04-18", "2025-05-01", "2025-07-28",
     "2025-07-29", "2025-08-30", "2025-10-08", "2025-12-08", "2025-12-25"
 ]
 
-# ----------------------
-# FUNCIONES AUXILIARES
-# ----------------------
 def convertir_hora_simple(hora_simple):
     hora_simple = hora_simple.strip().lower()
     if "am" in hora_simple:
@@ -86,9 +82,7 @@ def calcular_pago_horas_extra(horas_extra, valor_hora, es_domingo_o_feriado):
             extra = 2 * valor_hora * 0.25 + (horas_extra - 2) * valor_hora * 0.35
             return round(extra, 2)
 
-# ----------------------
-# ENTRADAS DEL USUARIO
-# ----------------------
+# Entradas del usuario
 nombre_empleado = st.text_input("Ingrese su nombre")
 sueldo_mensual = st.number_input("Ingrese su sueldo mensual (S/):", min_value=0.0, step=10.0)
 entrada_normal = st.text_input("Ingrese hora de entrada (ej: 8am, 10pm)")
@@ -97,9 +91,7 @@ salida_normal = st.text_input("Ingrese hora de salida (ej: 5pm, 10pm)")
 anio = st.number_input("Ingrese el año (YYYY):", min_value=2000, max_value=2100, value=datetime.today().year)
 mes = st.number_input("Ingrese el mes (1-12):", min_value=1, max_value=12, value=datetime.today().month)
 
-# ----------------------
-# BOTÓN DE CÁLCULO
-# ----------------------
+# Botón de cálculo
 if st.button("Calcular Horas Extra"):
     if nombre_empleado and sueldo_mensual > 0 and entrada_normal and salida_normal:
         hora_entrada = datetime.strptime(convertir_hora_simple(entrada_normal), "%H:%M")
@@ -140,7 +132,5 @@ if st.button("Calcular Horas Extra"):
     else:
         st.warning("⚠️ Complete todos los campos para calcular.")
 
-# ----------------------
-# CIERRE DEL DIV DE CONTENIDO
-# ----------------------
+# Cerrar el div content
 st.markdown("</div>", unsafe_allow_html=True)
