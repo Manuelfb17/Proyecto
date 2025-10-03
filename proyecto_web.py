@@ -31,11 +31,11 @@ st.markdown(
     }
     .banner-fixed img {
         width: 100%;
-        height: 230px;   /* altura más grande */
-        object-fit: cover; /* ahora cubre todo el ancho */
+        height: 260px;   /* altura más grande */
+        object-fit: cover; /* cubre todo el ancho */
     }
     .content {
-        margin-top: 240px;  /* deja espacio debajo del banner */
+        margin-top: 270px;  /* espacio debajo del banner */
     }
     </style>
     <div class="banner-fixed">
