@@ -14,7 +14,7 @@ st.set_page_config(
 )
 
 # ----------------------
-# BANNER SUPERIOR FIJO (ocupa todo el ancho y se ve completo)
+# BANNER SUPERIOR FIJO (imagen a todo el ancho)
 # ----------------------
 st.markdown(
     """
@@ -28,12 +28,11 @@ st.markdown(
         overflow: hidden;
         background-color: white;
         box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
-        text-align: center;
     }
     .banner-fixed img {
         width: 100%;
-        max-height: 220px;   /* más altura para que se vean las letras completas */
-        object-fit: contain; /* asegura que no se recorte */
+        height: 230px;   /* altura más grande */
+        object-fit: cover; /* ahora cubre todo el ancho */
     }
     .content {
         margin-top: 240px;  /* deja espacio debajo del banner */
