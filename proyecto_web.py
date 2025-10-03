@@ -9,12 +9,12 @@ import calendar
 st.set_page_config(
     page_title="Registro de Horas Extra",
     page_icon="⏰",
-    layout="wide",  # usar toda la pantalla
+    layout="wide",
     initial_sidebar_state="expanded"
 )
 
 # ----------------------
-# BANNER SUPERIOR FIJO (logo Marco Peruana)
+# BANNER SUPERIOR FIJO (ocupa todo el ancho)
 # ----------------------
 st.markdown(
     """
@@ -25,19 +25,16 @@ st.markdown(
         left: 0;
         width: 100%;
         z-index: 999;
-        background-color: white; /* fondo blanco para el logo */
-        text-align: center;
-        padding: 5px 0;
+        overflow: hidden;
         box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
     }
     .banner-fixed img {
         width: 100%;
-        height: auto;
-        max-height: 160px;   /* ajusta el alto máximo del logo */
-        object-fit: contain; /* muestra el logo completo */
+        height: 180px;   /* altura fija del banner */
+        object-fit: cover; /* que cubra todo el ancho */
     }
     .content {
-        margin-top: 180px;  /* espacio suficiente debajo del banner */
+        margin-top: 190px;  /* deja espacio debajo del banner */
     }
     </style>
     <div class="banner-fixed">
@@ -62,7 +59,6 @@ feriados = [
 ]
 
 def convertir_hora_simple(hora_simple):
-    """Convierte una hora en formato 8am/5pm a formato 24h"""
     hora_simple = hora_simple.strip().lower()
     if "am" in hora_simple:
         hora = int(hora_simple.replace("am", ""))
@@ -77,9 +73,8 @@ def convertir_hora_simple(hora_simple):
     return f"{hora:02d}:00"
 
 def calcular_pago_horas_extra(horas_extra, valor_hora, es_domingo_o_feriado):
-    """Calcula el pago según si es domingo/feriado o día normal"""
     if es_domingo_o_feriado:
-        return round(horas_extra * valor_hora * 2, 2)  # 200%
+        return round(horas_extra * valor_hora * 2, 2)
     else:
         if horas_extra <= 2:
             return round(horas_extra * valor_hora * 0.25, 2)
@@ -99,7 +94,6 @@ mes = st.number_input("Ingrese el mes (1-12):", min_value=1, max_value=12, value
 # Botón de cálculo
 if st.button("Calcular Horas Extra"):
     if nombre_empleado and sueldo_mensual > 0 and entrada_normal and salida_normal:
-        # Calcular valor hora
         hora_entrada = datetime.strptime(convertir_hora_simple(entrada_normal), "%H:%M")
         hora_salida = datetime.strptime(convertir_hora_simple(salida_normal), "%H:%M")
         if hora_salida < hora_entrada:
@@ -111,11 +105,10 @@ if st.button("Calcular Horas Extra"):
         registros = []
         num_dias = calendar.monthrange(anio, mes)[1]
 
-        # Recorrer los días del mes
         for dia in range(1, num_dias + 1):
             fecha = datetime(anio, mes, dia)
             fecha_str = fecha.strftime("%Y-%m-%d")
-            dia_semana = fecha.weekday()  # 0=lunes, 6=domingo
+            dia_semana = fecha.weekday()
             es_domingo_o_feriado = (dia_semana == 6) or (fecha_str in feriados)
 
             horas_extra = st.number_input(f"{fecha_str} - Horas extra:", min_value=0.0, step=1.0, key=dia)
@@ -128,18 +121,16 @@ if st.button("Calcular Horas Extra"):
                     "Pago Extra (S/)": pago
                 })
 
-        # Mostrar resultados
         if registros:
             df = pd.DataFrame(registros)
             st.subheader("📊 Reporte de Horas Extra del Mes")
             st.dataframe(df)
             st.write("💰 **Total de horas extra (S/):**", df["Pago Extra (S/)"].sum())
 
-            # Exportar a Excel
             df.to_excel("HorasExtra_Mes_Reporte.xlsx", index=False)
             st.success("Reporte guardado como 'HorasExtra_Mes_Reporte.xlsx'")
     else:
         st.warning("⚠️ Complete todos los campos para calcular.")
 
-# Cerrar contenido
+# Cerrar el div content
 st.markdown("</div>", unsafe_allow_html=True)
