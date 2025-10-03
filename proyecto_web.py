@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta
 import calendar
-from PIL import Image
 
 # ----------------------
 # CONFIGURACIÓN DE LA PÁGINA
@@ -15,45 +14,32 @@ st.set_page_config(
 )
 
 # ----------------------
-# CABECERA DELGADA FIJA CON IMAGEN DE MARCO PERUANA
+# BANNER SUPERIOR
 # ----------------------
 st.markdown(
     """
     <style>
-    .fixed-header {
-        position: fixed;
-        top: 0;
-        left: 0;
+    .banner-container {
         width: 100%;
-        background-color: #ffffff; /* color de fondo de la barra */
-        z-index: 1000;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 4px 15px;
-        box-shadow: 0px 2px 6px rgba(0,0,0,0.2);
+        text-align: center;
     }
-    .fixed-header img {
-        height: 50px; /* tamaño del logo/banner */
-    }
-    .fixed-header span {
-        font-size: 18px;
-        font-weight: bold;
-        color: #333333;
-    }
-    /* Para que el contenido no quede oculto debajo del header */
-    .stApp {
-        margin-top: 80px;  
+    .banner-container img {
+        width: 100%;
+        height: 180px;  /* puedes ajustar la altura */
+        object-fit: cover;
+        position: sticky;
+        top: 0;
+        z-index: 999;
     }
     </style>
-
-    <div class="fixed-header">
-        <img src="https://www.marco.com.pe/wp-content/uploads/2021/01/marco-7.jpg" alt="Marco Logo">
-        <span>Registro de Horas Extra</span>
+    <div class="banner-container">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6a/Peru_Red_Logo.png">
     </div>
     """,
     unsafe_allow_html=True
 )
+
+st.write("Registra tus horas extra y calcula el pago automáticamente")
 
 # ----------------------
 # LISTA DE FERIADOS
@@ -93,9 +79,6 @@ def calcular_pago_horas_extra(horas_extra, valor_hora, es_domingo_o_feriado):
 # ----------------------
 # ENTRADAS DEL USUARIO
 # ----------------------
-st.title("🕒 Registro de Horas Extra")
-st.write("Registra tus horas extra y calcula el pago automáticamente")
-
 nombre_empleado = st.text_input("Ingrese su nombre")
 sueldo_mensual = st.number_input("Ingrese su sueldo mensual (S/):", min_value=0.0, step=10.0)
 
