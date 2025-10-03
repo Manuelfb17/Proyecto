@@ -25,7 +25,7 @@ st.markdown(
     }
     .banner-container img {
         width: 100%;
-        height: 180px;  /* puedes ajustar la altura */
+        height: 200px;  /* Ajusta la altura */
         object-fit: cover;
         position: sticky;
         top: 0;
@@ -33,7 +33,7 @@ st.markdown(
     }
     </style>
     <div class="banner-container">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6a/Peru_Red_Logo.png">
+        <img src="https://images.unsplash.com/photo-1602524202444-2d9e0ebea5ea?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80">
     </div>
     """,
     unsafe_allow_html=True
