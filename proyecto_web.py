@@ -9,7 +9,7 @@ import calendar
 st.set_page_config(
     page_title="Registro de Horas Extra",
     page_icon="⏰",
-    layout="centered",
+    layout="wide",  # usar toda la pantalla
     initial_sidebar_state="expanded"
 )
 
@@ -25,15 +25,19 @@ st.markdown(
         left: 0;
         width: 100%;
         z-index: 999;
+        background-color: white; /* fondo blanco para el logo */
+        text-align: center;
+        padding: 5px 0;
+        box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
     }
     .banner-fixed img {
         width: 100%;
         height: auto;
-        object-fit: contain; /* asegura que se vea completa */
-        max-height: 180px;   /* ajusta altura máxima del banner */
+        max-height: 160px;   /* ajusta el alto máximo del logo */
+        object-fit: contain; /* muestra el logo completo */
     }
     .content {
-        margin-top: 190px;  /* deja espacio para que no lo tape el banner */
+        margin-top: 180px;  /* espacio suficiente debajo del banner */
     }
     </style>
     <div class="banner-fixed">
