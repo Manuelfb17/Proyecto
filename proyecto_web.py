@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 from datetime import datetime
-import calendar
 import holidays
 
 # ==============================
@@ -65,9 +64,9 @@ st.markdown(
 st.subheader("Datos del empleado")
 with st.container():
     st.markdown("<div class='campo-datos'></div>", unsafe_allow_html=True)
-    nombre_empleado = st.text_input("Nombre del empleado", value="")
+    nombre_empleado = st.text_input("Ingrese su nombre", value="")
     sueldo_mensual = st.number_input(
-        "Sueldo mensual (S/):",
+        "Ingrese su sueldo mensual (S/):",
         min_value=0,
         step=100,
         format="%d",
@@ -88,7 +87,7 @@ if fecha_seleccionada:
     peru_feriados = holidays.Peru(years=anio)
     feriados = [fecha.strftime("%Y-%m-%d") for fecha in peru_feriados.keys()]
 
-    st.subheader("Horas Extra del día seleccionado")
+    st.subheader("Ingrese las horas extra del día seleccionado")
     with st.container():
         st.markdown("<div class='campo-datos'></div>", unsafe_allow_html=True)
         horas_extra = st.number_input(
@@ -141,4 +140,4 @@ if st.button("Calcular Horas Extra"):
         else:
             st.info("No se ingresaron horas extra.")
     else:
-        st.warning("⚠️ Complete nombre y sueldo mensual.")
+        st.warning("⚠️ Complete todos los campos.")
