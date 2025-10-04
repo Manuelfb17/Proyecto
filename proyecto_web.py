@@ -57,11 +57,6 @@ st.markdown(
         z-index: 9999;
     }
 
-    .header img {
-        height: 60px;
-        width: auto;
-    }
-
     /* Contenedor de la app debajo del header */
     .contenido {
         margin-top: 100px;
@@ -75,10 +70,8 @@ st.markdown(
     }
     </style>
 
-    <!-- Header fijo -->
-    <div class="header">
-        <img src="https://www.marco.com.pe/wp-content/uploads/2020/11/logo-marco-COLOR.svg" alt="Logo Marco">
-    </div>
+    <!-- Header fijo (sin logo) -->
+    <div class="header"></div>
 """, unsafe_allow_html=True)
 
 # ==============================
@@ -113,7 +106,7 @@ if fecha_seleccionada:
     peru_feriados = holidays.Peru(years=anio)
     feriados = [fecha.strftime("%Y-%m-%d") for fecha in peru_feriados.keys()]
 
-    st.markdown("<br><br>", unsafe_allow_html=True)  # separación visual
+    st.markdown("<br><br>", unsafe_allow_html=True)
     st.subheader(f"Ingrese las horas extra para {fecha_str}")
     horas_extra = st.number_input(
         f"Horas extra del día seleccionado:",
@@ -122,7 +115,6 @@ if fecha_seleccionada:
         format="%d",
         value=st.session_state["registro_horas"].get(fecha_str, None)
     )
-    # Guardar automáticamente en session_state
     st.session_state["registro_horas"][fecha_str] = horas_extra
 
 # ----------------------
@@ -166,4 +158,4 @@ if st.button("Calcular Horas Extra"):
     else:
         st.warning("⚠️ Complete todos los campos.")
 
-st.markdown('</div>', unsafe_allow_html=True)  # cierra app-content
+st.markdown('</div>', unsafe_allow_html=True)
