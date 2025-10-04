@@ -1,7 +1,8 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime
 import calendar
+import holidays
 
 # ==============================
 # ICONO Y NOMBRE PARA IOS (PWA)
@@ -53,13 +54,7 @@ st.markdown(
 # CONTENIDO DE LA APP
 # ----------------------
 st.title("Registro de Horas Extra")
-st.write("Completa los datos para calcular el pago de tus horas extra.")
-
-# Lista de feriados en Perú 2025
-feriados = [
-    "2025-01-01", "2025-04-18", "2025-05-01", "2025-07-28",
-    "2025-07-29", "2025-08-30", "2025-10-08", "2025-12-08", "2025-12-25"
-]
+st.write("Complete los datos para calcular el pago de sus horas extra.")
 
 # ----------------------
 # FUNCIONES
@@ -90,25 +85,20 @@ with st.form("form_horas_extra"):
         value=None
     )
 
-    # Selector de fecha (solo para obtener mes y año)
-    fecha_seleccionada = st.date_input(
-        "Seleccione el mes y año:",
-        value=None
-    )
+    # Selector de fecha (para mes y año)
+    fecha_seleccionada = st.date_input("Seleccione mes y año:", value=None)
+
+    horas_dict = {}
     if fecha_seleccionada:
         anio = fecha_seleccionada.year
         mes = fecha_seleccionada.month
-    else:
-        anio = None
-        mes = None
 
-    st.markdown("---")
-    st.subheader("Ingrese las horas extra de cada día:")
+        # Obtener feriados automáticamente según el año
+        peru_feriados = holidays.Peru(years=anio)
+        feriados = [fecha.strftime("%Y-%m-%d") for fecha in peru_feriados.keys()]
 
-    # Generamos días del mes seleccionado
-    if anio and mes:
+        # Generar inputs para cada día del mes seleccionado
         num_dias = calendar.monthrange(anio, mes)[1]
-        horas_dict = {}
         for dia in range(1, num_dias + 1):
             fecha = datetime(anio, mes, dia)
             fecha_str = fecha.strftime("%Y-%m-%d")
@@ -120,8 +110,6 @@ with st.form("form_horas_extra"):
                 value=None,
                 key=fecha_str
             )
-    else:
-        horas_dict = {}
 
     submitted = st.form_submit_button("Calcular Horas Extra")
 
@@ -129,15 +117,16 @@ with st.form("form_horas_extra"):
 # PROCESAMIENTO
 # ----------------------
 if submitted:
-    if nombre_empleado and sueldo_mensual and anio and mes:
-        valor_hora = round(sueldo_mensual / (8 * 5 * 4.33), 2)  # 8h diarias, 5 días por semana, 4.33 semanas promedio
+    if nombre_empleado and sueldo_mensual and fecha_seleccionada:
+        # Valor hora basado en 8h diarias, 5 días por semana, 4.33 semanas promedio
+        valor_hora = round(sueldo_mensual / (8 * 5 * 4.33), 2)
 
         registros = []
         for fecha_str, horas_extra in horas_dict.items():
-            if horas_extra:  # solo si ingresó algo
+            if horas_extra:
                 fecha = datetime.strptime(fecha_str, "%Y-%m-%d")
-                dia_semana = fecha.weekday()
-                es_domingo_o_feriado = (dia_semana >= 5) or (fecha_str in feriados)
+                dia_semana = fecha.weekday()  # 0=lunes, 6=domingo
+                es_domingo_o_feriado = (dia_semana == 5 or dia_semana == 6) or (fecha_str in feriados)
                 pago = calcular_pago_horas_extra(horas_extra, valor_hora, es_domingo_o_feriado)
                 registros.append({
                     "Empleado": nombre_empleado,
