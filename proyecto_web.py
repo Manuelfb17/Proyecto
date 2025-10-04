@@ -44,7 +44,29 @@ st.markdown(
     .campo-datos {
         margin-bottom: 20px;
     }
+    /* Encabezado con logo */
+    .header-logo {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 25px;
+    }
+    .header-logo img {
+        max-width: 100%;
+        height: auto;
+    }
     </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# ----------------------
+# ENCABEZADO CON LOGO
+# ----------------------
+st.markdown(
+    """
+    <div class="header-logo">
+        <img src="https://www.marco.com.pe/wp-content/uploads/2020/11/logo-marco-COLOR.svg" alt="Logo Marco">
+    </div>
     """,
     unsafe_allow_html=True
 )
@@ -78,7 +100,7 @@ if fecha_seleccionada:
     peru_feriados = holidays.Peru(years=anio)
     feriados = [fecha.strftime("%Y-%m-%d") for fecha in peru_feriados.keys()]
 
-    # Agregar un margen superior antes del subtítulo
+    # Separación antes del subtítulo
     st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True)
 
     st.subheader("Ingrese las horas extra del día seleccionado")
