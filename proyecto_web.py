@@ -61,7 +61,7 @@ st.markdown(
 # ----------------------
 # BLOQUE DE DATOS GENERALES
 # ----------------------
-st.subheader("Datos del empleado")
+st.subheader("REGISTRO DE HORAS EXTRA")
 with st.container():
     st.markdown("<div class='campo-datos'></div>", unsafe_allow_html=True)
     nombre_empleado = st.text_input("Ingrese su nombre", value="")
