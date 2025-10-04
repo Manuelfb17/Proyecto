@@ -2,13 +2,18 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 import holidays
-from io import BytesIO
+import json
+import os
 
 # ==============================
 # Configuración inicial de sesión
 # ==============================
-if "registro_horas" not in st.session_state:
-    st.session_state["registro_horas"] = {}  # Guarda todas las horas ingresadas
+# Cargar historial desde archivo si existe
+if os.path.exists("registro_horas.json"):
+    with open("registro_horas.json", "r") as f:
+        st.session_state["registro_horas"] = json.load(f)
+else:
+    st.session_state["registro_horas"] = {}
 
 # ==============================
 # ICONO Y NOMBRE PARA IOS (PWA)
@@ -30,12 +35,11 @@ st.set_page_config(
 )
 
 # ==============================
-# ESTILOS: fondo dinámico y contenedor con blur
+# ESTILOS: fondo dinámico difuminado
 # ==============================
 st.markdown(
     """
     <style>
-    /* Fondo dinámico con degradado */
     .stApp {
         background: 
             linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 40%),
@@ -44,25 +48,16 @@ st.markdown(
         background-position: center;
         background-attachment: fixed;
     }
-
-    /* Contenedor principal con blur solo del fondo */
     .contenido {
-        margin-top: 0px !important;  /* pegado al inicio */
+        margin-top: 0px !important;
         padding: 20px;
         border-radius: 10px;
         backdrop-filter: blur(8px);
         background-color: rgba(255,255,255,0.2);
     }
-
-    /* Quitar padding/margen extra de Streamlit y barra superior */
     .block-container {
-        padding-top: 0rem !important;
+        padding-top: 0rem;
     }
-    header, .css-1v3fvcr {
-        display: none !important;
-    }
-
-    /* Separación de campos */
     .campo-datos {
         margin-bottom: 20px;
     }
@@ -76,9 +71,6 @@ st.markdown(
 with st.container():
     st.markdown('<div class="contenido"></div>', unsafe_allow_html=True)
 
-    # ----------------------
-    # BLOQUE DE DATOS GENERALES
-    # ----------------------
     st.subheader("REGISTRO DE HORAS EXTRA")
     nombre_empleado = st.text_input("Ingrese su nombre", value="")
     sueldo_mensual = st.number_input(
@@ -101,71 +93,72 @@ with st.container():
         peru_feriados = holidays.Peru(years=anio)
         feriados = [fecha.strftime("%Y-%m-%d") for fecha in peru_feriados.keys()]
 
-        st.markdown("<br><br>", unsafe_allow_html=True)  # separación visual
+        st.markdown("<br><br>", unsafe_allow_html=True)
         st.subheader(f"Ingrese las horas extra para {fecha_str}")
         horas_extra = st.number_input(
             f"Horas extra del día seleccionado:",
             min_value=0,
             step=1,
             format="%d",
-            value=st.session_state["registro_horas"].get(fecha_str, None)
+            value=st.session_state["registro_horas"].get(fecha_str, 0)
         )
         # Guardar automáticamente en session_state
         st.session_state["registro_horas"][fecha_str] = horas_extra
 
-    # ----------------------
-    # BOTÓN CALCULAR Y TABLA
-    # ----------------------
-    if st.button("Calcular Horas Extra"):
-        if nombre_empleado and sueldo_mensual:
-            valor_hora = round(sueldo_mensual / (8 * 5 * 4.33), 2)
-            registros = []
+        # Guardar historial en archivo
+        with open("registro_horas.json", "w") as f:
+            json.dump(st.session_state["registro_horas"], f)
 
-            for fecha_str, horas in st.session_state["registro_horas"].items():
-                if horas:
-                    fecha = datetime.strptime(fecha_str, "%Y-%m-%d")
-                    dia_semana = fecha.weekday()  # 0=lunes, 6=domingo
-                    es_domingo_o_feriado = (dia_semana == 5 or dia_semana == 6) or (fecha_str in feriados)
+    # ----------------------
+    # BOTONES
+    # ----------------------
+    col1, col2 = st.columns(2)
 
-                    # Lógica de horas extra
-                    if es_domingo_o_feriado:
-                        pago = round(horas * valor_hora * 2, 2)
-                    else:
-                        if horas <= 2:
-                            pago = round(horas * valor_hora * 0.25, 2)
+    with col1:
+        if st.button("Calcular Horas Extra"):
+            if nombre_empleado and sueldo_mensual:
+                valor_hora = round(sueldo_mensual / (8 * 5 * 4.33), 2)
+                registros = []
+
+                for fecha_str, horas in st.session_state["registro_horas"].items():
+                    if horas:
+                        fecha = datetime.strptime(fecha_str, "%Y-%m-%d")
+                        dia_semana = fecha.weekday()
+                        es_domingo_o_feriado = (dia_semana == 5 or dia_semana == 6) or (fecha_str in feriados)
+
+                        if es_domingo_o_feriado:
+                            pago = round(horas * valor_hora * 2, 2)
                         else:
-                            pago = round(2*valor_hora*0.25 + (horas-2)*valor_hora*0.35, 2)
+                            if horas <= 2:
+                                pago = round(horas * valor_hora * 0.25, 2)
+                            else:
+                                pago = round(2*valor_hora*0.25 + (horas-2)*valor_hora*0.35, 2)
 
-                    registros.append({
-                        "Empleado": nombre_empleado,
-                        "Fecha": fecha_str,
-                        "Horas Extra": horas,
-                        "Pago Extra (S/)": pago
-                    })
+                        registros.append({
+                            "Empleado": nombre_empleado,
+                            "Fecha": fecha_str,
+                            "Horas Extra": horas,
+                            "Pago Extra (S/)": pago
+                        })
 
-            if registros:
-                df = pd.DataFrame(registros)
-                st.subheader("📊 Reporte de Horas Extra")
-                st.dataframe(df)
-                st.write("💰 **Total de horas extra (S/):**", df["Pago Extra (S/)"].sum())
+                if registros:
+                    df = pd.DataFrame(registros)
+                    st.subheader("📊 Reporte de Horas Extra")
+                    st.dataframe(df)
+                    st.write("💰 **Total de horas extra (S/):**", df["Pago Extra (S/)"].sum())
 
-                # Guardar Excel con columnas independientes (como en el DataFrame)
-                output = BytesIO()
-                with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-                    df.to_excel(writer, sheet_name='Horas Extra', index=False)
-                    worksheet = writer.sheets['Horas Extra']
-                    for idx, col in enumerate(df.columns):
-                        # Ajustar ancho de columnas automáticamente
-                        max_len = max(df[col].astype(str).map(len).max(), len(col)) + 2
-                        worksheet.set_column(idx, idx, max_len)
-                st.download_button(
-                    label="📥 Descargar Excel",
-                    data=output.getvalue(),
-                    file_name="HorasExtra_Mes_Reporte.xlsx",
-                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                )
-
+                    # Guardar Excel con columnas independientes
+                    df.to_excel("HorasExtra_Mes_Reporte.xlsx", index=False)
+                    st.success("Reporte guardado como 'HorasExtra_Mes_Reporte.xlsx'")
+                else:
+                    st.info("No se ingresaron horas extra.")
             else:
-                st.info("No se ingresaron horas extra.")
-        else:
-            st.warning("⚠️ Complete todos los campos.")
+                st.warning("⚠️ Complete todos los campos.")
+
+    with col2:
+        if st.button("🧹 Limpiar Hrs Ext."):
+            st.session_state["registro_horas"].clear()
+            # Borrar archivo también
+            if os.path.exists("registro_horas.json"):
+                os.remove("registro_horas.json")
+            st.success("✅ Historial de horas extra limpiado.")
