@@ -2,32 +2,30 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 import holidays
-import gspread
-from google.oauth2.service_account import Credentials
+from io import BytesIO
 
 # ==============================
-# CONFIGURACIÓN DE GOOGLE SHEETS
+# Configuración inicial de sesión
 # ==============================
-SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
-SERVICE_ACCOUNT_FILE = "horasextramarco-f6c3648f7519.json"
-SPREADSHEET_NAME = "Registro_Horas_Extra"  # Nombre de tu hoja en Google Sheets
-
-# Autenticación
-creds = Credentials.from_service_account_file(
-    SERVICE_ACCOUNT_FILE, scopes=SCOPES
-)
-client = gspread.authorize(creds)
-
-# Abrir hoja de cálculo, crear si no existe
-try:
-    sheet = client.open(SPREADSHEET_NAME).sheet1
-except gspread.SpreadsheetNotFound:
-    sheet = client.create(SPREADSHEET_NAME).sheet1
-    sheet.append_row(["Fecha", "Empleado", "Horas Extra"])
+if "registro_horas" not in st.session_state:
+    st.session_state["registro_horas"] = {}  # Guarda todas las horas ingresadas
+if "ultima_fecha" not in st.session_state:
+    st.session_state["ultima_fecha"] = None
+if "ultima_hora" not in st.session_state:
+    st.session_state["ultima_hora"] = None
 
 # ==============================
-# CONFIGURACIÓN DE STREAMLIT
+# ICONO Y NOMBRE PARA IOS (PWA)
 # ==============================
+st.markdown("""
+<meta name="apple-mobile-web-app-title" content="Horas Extra Marco">
+<link rel="apple-touch-icon" sizes="180x180" href="https://i.postimg.cc/7PjfgKkz/marco-peruana.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+""", unsafe_allow_html=True)
+
+# ----------------------
+# CONFIGURACIÓN DE LA PÁGINA
+# ----------------------
 st.set_page_config(
     page_title="Registro de Horas Extra",
     page_icon="⏰",
@@ -36,149 +34,149 @@ st.set_page_config(
 )
 
 # ==============================
-# ESTILOS
+# ESTILOS: fondo dinámico y contenedor difuminado
 # ==============================
-st.markdown("""
-<style>
-.stApp {
-    background: 
-        linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 40%),
-        url('https://www.marco.com.pe/wp-content/uploads/2021/01/marco-7.jpg');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-}
-.contenido {
-    margin-top: 20px;
-    padding: 20px;
-    border-radius: 10px;
-}
-.campo-datos {
-    margin-bottom: 20px;
-}
-.block-container {
-    padding-top: 0rem;
-}
-</style>
-""", unsafe_allow_html=True)
+st.markdown(
+    """
+    <style>
+    /* Fondo dinámico */
+    .stApp {
+        background: 
+            linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 40%),
+            url('https://www.marco.com.pe/wp-content/uploads/2021/01/marco-7.jpg');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    }
 
-# ==============================
-# FUNCIONES PARA GOOGLE SHEETS
-# ==============================
-def obtener_datos():
-    """Obtiene todos los datos guardados en Google Sheets como DataFrame"""
-    datos = sheet.get_all_records()
-    df = pd.DataFrame(datos)
-    return df
+    /* Contenedor principal con blur */
+    .contenido {
+        margin-top: 0px !important;
+        padding: 20px;
+        border-radius: 10px;
+        backdrop-filter: blur(8px);
+        background-color: rgba(255,255,255,0.2);
+    }
 
-def guardar_hora(fecha, empleado, horas):
-    """Guarda o actualiza una hora extra para una fecha y empleado"""
-    datos = sheet.get_all_records()
-    # Verificar si ya hay registro para esa fecha y empleado
-    fila_existente = None
-    for i, fila in enumerate(datos):
-        if fila["Fecha"] == fecha and fila["Empleado"] == empleado:
-            fila_existente = i + 2  # +2 por encabezados y 1-index en Sheets
-            break
-    if fila_existente:
-        sheet.update_cell(fila_existente, 3, horas)
-    else:
-        sheet.append_row([fecha, empleado, horas])
+    /* Quitar padding extra de Streamlit */
+    .block-container {
+        padding-top: 0rem;
+    }
 
-def limpiar_todo():
-    """Limpia todos los datos de Google Sheets"""
-    sheet.clear()
-    sheet.append_row(["Fecha", "Empleado", "Horas Extra"])
-
-# ==============================
-# INTERFAZ DE LA APP
-# ==============================
-st.subheader("REGISTRO DE HORAS EXTRA")
-
-# Campos vacíos por defecto
-nombre_empleado = st.text_input("Ingrese su nombre", value="")
-sueldo_mensual = st.number_input(
-    "Ingrese su sueldo mensual (S/):",
-    min_value=0,
-    step=100,
-    format="%d",
-    value=None
+    /* Separación de campos */
+    .campo-datos {
+        margin-bottom: 20px;
+    }
+    </style>
+    """, unsafe_allow_html=True
 )
-fecha_seleccionada = st.date_input("Seleccione la fecha (día, mes y año)")
 
-# Bloque de horas extra
-horas_extra = None
-if fecha_seleccionada and nombre_empleado:
-    fecha_str = fecha_seleccionada.strftime("%Y-%m-%d")
-    df_guardado = obtener_datos()
-    # Si ya hay horas para esta fecha y empleado, mostrar
-    registro = df_guardado[(df_guardado["Fecha"] == fecha_str) & (df_guardado["Empleado"] == nombre_empleado)]
-    if not registro.empty:
-        horas_extra = st.number_input(
-            f"Horas extra del día seleccionado:",
-            min_value=0,
-            step=1,
-            value=int(registro.iloc[0]["Horas Extra"])
-        )
-    else:
-        horas_extra = st.number_input(
-            f"Horas extra del día seleccionado:",
-            min_value=0,
-            step=1,
-            value=0
-        )
+# ==============================
+# CONTENIDO DE LA APP
+# ==============================
+with st.container():
+    st.markdown('<div class="contenido"></div>', unsafe_allow_html=True)
 
-# Guardar horas en Google Sheets al cambiar
-if horas_extra is not None and fecha_seleccionada and nombre_empleado:
-    guardar_hora(fecha_str, nombre_empleado, horas_extra)
+    # ----------------------
+    # BLOQUE DE DATOS GENERALES
+    # ----------------------
+    st.subheader("REGISTRO DE HORAS EXTRA")
+    nombre_empleado = st.text_input("Ingrese su nombre", value="")
+    sueldo_mensual = st.text_input("Ingrese su sueldo mensual (S/):", value="")  # Campo limpio por defecto
+    fecha_seleccionada = st.date_input("Seleccione la fecha (día, mes y año)")
 
-# Botón para limpiar todo
-if st.button("Limpiar Hrs. Ext."):
-    limpiar_todo()
-    st.experimental_rerun()
+    # ----------------------
+    # BLOQUE HORAS EXTRA
+    # ----------------------
+    if fecha_seleccionada:
+        fecha_str = fecha_seleccionada.strftime("%Y-%m-%d")
 
-# ----------------------
-# BOTÓN CALCULAR Y TABLA
-# ----------------------
-if st.button("Calcular Horas Extra"):
-    if nombre_empleado and sueldo_mensual:
-        valor_hora = round(sueldo_mensual / (8 * 5 * 4.33), 2)
-        registros = []
-        df_guardado = obtener_datos()
-        peru_feriados = holidays.Peru(years=datetime.now().year)
-        feriados = [fecha.strftime("%Y-%m-%d") for fecha in peru_feriados.keys()]
+        # Guardar valor anterior antes de cambiar de fecha
+        if st.session_state["ultima_fecha"] is not None and st.session_state["ultima_hora"] not in [None, ""]:
+            try:
+                st.session_state["registro_horas"][st.session_state["ultima_fecha"]] = float(st.session_state["ultima_hora"])
+            except:
+                st.session_state["registro_horas"][st.session_state["ultima_fecha"]] = 0
 
-        for _, fila in df_guardado.iterrows():
-            fecha_str = fila["Fecha"]
-            horas = fila["Horas Extra"]
-            fecha_dt = datetime.strptime(fecha_str, "%Y-%m-%d")
-            dia_semana = fecha_dt.weekday()
-            es_domingo_o_feriado = (dia_semana == 5 or dia_semana == 6) or (fecha_str in feriados)
+        # Mostrar valor guardado o vacío
+        valor_guardado = st.session_state["registro_horas"].get(fecha_str, "")
+        horas_extra_val = st.text_input(f"Horas extra del día {fecha_str}:", value=str(valor_guardado) if valor_guardado != "" else "")
 
-            if es_domingo_o_feriado:
-                pago = round(horas * valor_hora * 2, 2)
-            else:
-                if horas <= 2:
-                    pago = round(horas * valor_hora * 0.25, 2)
+        # Guardar temporalmente
+        st.session_state["ultima_fecha"] = fecha_str
+        st.session_state["ultima_hora"] = horas_extra_val
+
+    # ----------------------
+    # BOTONES CALCULAR Y LIMPIAR
+    # ----------------------
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("Calcular Horas Extra"):
+            if nombre_empleado.strip() != "" and sueldo_mensual.strip() != "":
+                try:
+                    sueldo_mensual_val = float(sueldo_mensual)
+                except:
+                    st.warning("⚠️ El sueldo debe ser un número válido.")
+                    st.stop()
+
+                # Guardar la última fecha
+                if st.session_state["ultima_fecha"] is not None and st.session_state["ultima_hora"] not in [None, ""]:
+                    try:
+                        st.session_state["registro_horas"][st.session_state["ultima_fecha"]] = float(st.session_state["ultima_hora"])
+                    except:
+                        st.session_state["registro_horas"][st.session_state["ultima_fecha"]] = 0
+
+                valor_hora = round(sueldo_mensual_val / (8 * 5 * 4.33), 2)
+                registros = []
+                anio = fecha_seleccionada.year
+                peru_feriados = holidays.Peru(years=anio)
+                feriados = [f.strftime("%Y-%m-%d") for f in peru_feriados.keys()]
+
+                for f_str, h in st.session_state["registro_horas"].items():
+                    if h not in ["", None]:
+                        h = float(h)
+                        fecha = datetime.strptime(f_str, "%Y-%m-%d")
+                        dia_semana = fecha.weekday()
+                        es_domingo_o_feriado = dia_semana in [5,6] or f_str in feriados
+                        if es_domingo_o_feriado:
+                            pago = round(h * valor_hora * 2, 2)
+                        else:
+                            if h <= 2:
+                                pago = round(h * valor_hora * 0.25, 2)
+                            else:
+                                pago = round(2*valor_hora*0.25 + (h-2)*valor_hora*0.35, 2)
+
+                        registros.append({
+                            "Empleado": nombre_empleado,
+                            "Fecha": f_str,
+                            "Horas Extra": h,
+                            "Pago Extra (S/)": pago
+                        })
+
+                if registros:
+                    df = pd.DataFrame(registros)
+                    st.subheader("📊 Reporte de Horas Extra")
+                    st.dataframe(df)
+                    st.write("💰 **Total de horas extra (S/):**", df["Pago Extra (S/)"].sum())
+
+                    # Botón para descargar Excel
+                    output = BytesIO()
+                    df.to_excel(output, index=False, engine='openpyxl')
+                    output.seek(0)
+                    st.download_button(
+                        label="📥 Descargar Excel",
+                        data=output,
+                        file_name="HorasExtra_Mes_Reporte.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    )
                 else:
-                    pago = round(2*valor_hora*0.25 + (horas-2)*valor_hora*0.35, 2)
+                    st.info("No se ingresaron horas extra.")
+            else:
+                st.warning("⚠️ Complete todos los campos.")
 
-            registros.append({
-                "Empleado": fila["Empleado"],
-                "Fecha": fecha_str,
-                "Horas Extra": horas,
-                "Pago Extra (S/)": pago
-            })
-
-        if registros:
-            df_reporte = pd.DataFrame(registros)
-            st.subheader("📊 Reporte de Horas Extra")
-            st.dataframe(df_reporte)
-            st.write("💰 **Total de horas extra (S/):**", df_reporte["Pago Extra (S/)"].sum())
-            # Botón para descargar Excel
-            df_reporte.to_excel("HorasExtra_Mes_Reporte.xlsx", index=False)
-            st.download_button("📥 Descargar Excel", df_reporte.to_excel(index=False, engine='xlsxwriter'), file_name="HorasExtra_Mes_Reporte.xlsx")
-        else:
-            st.info("No se ingresaron horas extra.")
-    else:
-        st.warning("⚠️ Complete todos los campos.")
+    with col2:
+        if st.button("Limpiar Hrs Ext."):
+            st.session_state["registro_horas"].clear()
+            st.session_state["ultima_fecha"] = None
+            st.session_state["ultima_hora"] = None
+            st.success("✅ Historial de horas extra borrado correctamente")
