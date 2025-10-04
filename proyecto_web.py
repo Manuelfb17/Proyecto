@@ -3,29 +3,24 @@ import pandas as pd
 from datetime import datetime
 import holidays
 import os
+from io import BytesIO
 
-# ==============================
 # Archivo para guardar los datos
-# ==============================
 archivo_datos = "registro_horas.csv"
 
 # ==============================
 # Configuración inicial de sesión
 # ==============================
 if "registro_horas" not in st.session_state:
-    # Cargar desde CSV si existe
     if os.path.exists(archivo_datos):
         df_guardado = pd.read_csv(archivo_datos)
-        # Convertir a diccionario {fecha: horas}
-        registro_horas = {}
-        for _, row in df_guardado.iterrows():
-            registro_horas[row["Fecha"]] = row["Horas Extra"]
+        registro_horas = {row["Fecha"]: row["Horas Extra"] for _, row in df_guardado.iterrows()}
         st.session_state["registro_horas"] = registro_horas
     else:
         st.session_state["registro_horas"] = {}
 
 # ==============================
-# ICONO Y NOMBRE PARA IOS (PWA)
+# Configuración PWA e icono
 # ==============================
 st.markdown("""
 <meta name="apple-mobile-web-app-title" content="Horas Extra Marco">
@@ -33,9 +28,7 @@ st.markdown("""
 <meta name="apple-mobile-web-app-capable" content="yes">
 """, unsafe_allow_html=True)
 
-# ----------------------
-# CONFIGURACIÓN DE LA PÁGINA
-# ----------------------
+# Configuración de la página
 st.set_page_config(
     page_title="Registro de Horas Extra",
     page_icon="⏰",
@@ -43,9 +36,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# ==============================
-# ESTILOS: fondo dinámico difuminado
-# ==============================
+# Estilos
 st.markdown("""
 <style>
 .stApp {
@@ -56,7 +47,6 @@ st.markdown("""
     background-position: center;
     background-attachment: fixed;
 }
-
 .contenido {
     margin-top: 0px !important;
     padding: 20px;
@@ -64,88 +54,72 @@ st.markdown("""
     backdrop-filter: blur(8px);
     background-color: rgba(255,255,255,0.2);
 }
-
 .block-container {
     padding-top: 0rem;
-}
-
-.campo-datos {
-    margin-bottom: 20px;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# ==============================
-# CONTENIDO DE LA APP
-# ==============================
+# Contenedor principal
 with st.container():
     st.markdown('<div class="contenido"></div>', unsafe_allow_html=True)
-
-    # ----------------------
-    # BLOQUE DE DATOS GENERALES
-    # ----------------------
     st.subheader("REGISTRO DE HORAS EXTRA")
+
+    # Campos vacíos por defecto
     nombre_empleado = st.text_input("Ingrese su nombre", value="")
     sueldo_mensual = st.number_input(
         "Ingrese su sueldo mensual (S/):",
         min_value=0,
         step=100,
         format="%d",
-        value=None
+        value=0
     )
+
     fecha_seleccionada = st.date_input("Seleccione la fecha (día, mes y año)")
 
-    # ----------------------
-    # BLOQUE HORAS EXTRA
-    # ----------------------
-    horas_extra = 0  # Valor por defecto
+    # Contenedor para horas extra que puede aparecer vacío
+    horas_extra_input = st.empty()
+    horas_extra_val = None
     if fecha_seleccionada:
         fecha_str = fecha_seleccionada.strftime("%Y-%m-%d")
-
-        # Si ya hay horas guardadas para esa fecha, mostrarlo
+        # Si ya hay horas guardadas, mostrar ese valor
         if fecha_str in st.session_state["registro_horas"]:
-            horas_extra_valor = st.session_state["registro_horas"][fecha_str]
+            valor = st.session_state["registro_horas"][fecha_str]
         else:
-            horas_extra_valor = 0
-
-        horas_extra = st.number_input(
+            valor = None
+        # number_input solo se muestra si hay valor
+        horas_extra_val = horas_extra_input.number_input(
             f"Horas extra del día {fecha_str}:",
             min_value=0,
             step=1,
             format="%d",
-            value=0
+            value=valor if valor is not None else 0
         )
 
-    # ----------------------
-    # BOTÓN LIMPIAR HISTORIAL
-    # ----------------------
+    # Botón Limpiar historial
     if st.button("Limpiar HRS EXT."):
         st.session_state["registro_horas"] = {}
         if os.path.exists(archivo_datos):
             os.remove(archivo_datos)
         st.success("Historial de horas extra limpiado!")
 
-    # ----------------------
-    # BOTÓN CALCULAR Y TABLA
-    # ----------------------
+    # Botón Calcular
     if st.button("Calcular Horas Extra"):
-        if nombre_empleado and sueldo_mensual:
-            if fecha_seleccionada and horas_extra > 0:
-                # Guardar horas en la sesión
-                st.session_state["registro_horas"][fecha_str] = horas_extra
+        if nombre_empleado and sueldo_mensual and fecha_seleccionada and horas_extra_val is not None:
+            st.session_state["registro_horas"][fecha_str] = horas_extra_val
+            # Guardar CSV
+            df_guardar = pd.DataFrame([
+                {"Empleado": nombre_empleado,
+                 "Fecha": f,
+                 "Horas Extra": h,
+                 "Pago Extra (S/)": 0}
+                for f, h in st.session_state["registro_horas"].items()
+            ])
+            df_guardar.to_csv(archivo_datos, index=False)
 
-                # Guardar en CSV para mantener persistencia
-                df_guardar = pd.DataFrame([
-                    {"Empleado": nombre_empleado,
-                     "Fecha": f,
-                     "Horas Extra": h,
-                     "Pago Extra (S/)": 0}  # se calculará después
-                    for f, h in st.session_state["registro_horas"].items()
-                ])
-                df_guardar.to_csv(archivo_datos, index=False)
-
+            # Calcular pagos
             registros = []
-            anio = fecha_seleccionada.year if fecha_seleccionada else datetime.today().year
+            anio = fecha_seleccionada.year
             peru_feriados = holidays.Peru(years=anio)
             feriados = [fecha.strftime("%Y-%m-%d") for fecha in peru_feriados.keys()]
 
@@ -154,10 +128,10 @@ with st.container():
                 dia_semana = fecha_obj.weekday()
                 es_domingo_o_feriado = (dia_semana == 5 or dia_semana == 6) or (f in feriados)
 
+                valor_hora = round(sueldo_mensual / (8*5*4.33), 2)
                 if es_domingo_o_feriado:
-                    pago = round(h * (sueldo_mensual / (8*5*4.33)) * 2, 2)
+                    pago = round(h * valor_hora * 2, 2)
                 else:
-                    valor_hora = round(sueldo_mensual / (8*5*4.33), 2)
                     if h <= 2:
                         pago = round(h * valor_hora * 0.25, 2)
                     else:
@@ -175,10 +149,13 @@ with st.container():
                 st.subheader("📊 Reporte de Horas Extra")
                 st.dataframe(df)
 
-                # Botón para descargar Excel
+                # Botón descargar Excel
+                towrite = BytesIO()
+                df.to_excel(towrite, index=False, engine='openpyxl')
+                towrite.seek(0)
                 st.download_button(
                     label="📥 Descargar Excel",
-                    data=df.to_excel(index=False, engine='openpyxl'),
+                    data=towrite,
                     file_name="HorasExtra_Mes_Reporte.xlsx",
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 )
