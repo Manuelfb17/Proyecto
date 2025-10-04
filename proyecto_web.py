@@ -7,7 +7,7 @@ import holidays
 # Configuración inicial de sesión
 # ==============================
 if "registro_horas" not in st.session_state:
-    st.session_state["registro_horas"] = {}
+    st.session_state["registro_horas"] = {}  # Guarda todas las horas ingresadas
 
 # ==============================
 # ICONO Y NOMBRE PARA IOS (PWA)
@@ -33,12 +33,19 @@ st.set_page_config(
 # ==============================
 st.markdown("""
 <style>
-/* Fondo fijo */
-.stApp {
+/* Fondo dinámico fijo detrás de todo */
+#fondo-blur {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     background-image: url('https://www.marco.com.pe/wp-content/uploads/2021/01/marco-7.jpg');
     background-size: cover;
     background-position: center;
-    background-attachment: fixed;
+    z-index: -1; /* siempre detrás del contenido */
+    filter: blur(0px);
+    transition: filter 0.2s;
 }
 
 /* Contenedor principal */
@@ -55,17 +62,17 @@ st.markdown("""
 .campo-datos {
     margin-bottom: 20px;
 }
-
-/* JS para blur dinámico */
 </style>
 
+<div id="fondo-blur"></div>
+
 <script>
-const app = window.parent.document.querySelector('.stApp');
+const fondo = window.parent.document.getElementById('fondo-blur');
 window.addEventListener('scroll', () => {
     const scrollY = window.scrollY;
     const maxBlur = 8; // px de desenfoque máximo
     const factor = Math.min(scrollY / 300, 1); // se ajusta el rango
-    app.style.filter = `blur(${factor * maxBlur}px)`;
+    fondo.style.filter = `blur(${factor * maxBlur}px)`;
 });
 </script>
 """, unsafe_allow_html=True)
