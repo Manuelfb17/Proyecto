@@ -6,39 +6,38 @@ import gspread
 from google.oauth2.service_account import Credentials
 
 # ==============================
-# CONFIGURACIÓN GOOGLE SHEETS
+# Configuración Google Sheets
 # ==============================
-# Ruta a tu JSON descargado
-SERVICE_ACCOUNT_FILE = "credenciales.json"
-
-# Permisos que necesitamos
+SERVICE_ACCOUNT_FILE = "horasextramarco-f6c3648f7519.json"
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 
-creds = Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+creds = Credentials.from_service_account_file(
+    SERVICE_ACCOUNT_FILE,
+    scopes=SCOPES
+)
+
 client = gspread.authorize(creds)
 
-# Abre la hoja de cálculo por nombre
-SHEET_NAME = "HorasExtraMarco"  # pon el nombre de tu sheet
-sheet = client.open(SHEET_NAME).sheet1  # puedes usar sheet1 o seleccionar otra hoja
+# Reemplaza con tu Sheet ID
+SHEET_ID = "TU_ID_DE_HOJA_DE_CALCULO"
+SHEET_NAME = "HorasExtra"
+
+try:
+    sheet = client.open_by_key(SHEET_ID).worksheet(SHEET_NAME)
+except:
+    # Si la hoja no existe, crea una
+    sheet = client.open_by_key(SHEET_ID).add_worksheet(title=SHEET_NAME, rows="100", cols="10")
+    sheet.append_row(["Empleado", "Fecha", "Horas Extra", "Pago Extra (S/)"])
 
 # ==============================
 # Configuración inicial de sesión
 # ==============================
 if "registro_horas" not in st.session_state:
-    st.session_state["registro_horas"] = {}  # Guarda todas las horas ingresadas
+    st.session_state["registro_horas"] = {}  # Diccionario temporal para la sesión
 
 # ==============================
-# ICONO Y NOMBRE PARA IOS (PWA)
+# Streamlit Página y Estilos
 # ==============================
-st.markdown("""
-<meta name="apple-mobile-web-app-title" content="Horas Extra Marco">
-<link rel="apple-touch-icon" sizes="180x180" href="https://i.postimg.cc/7PjfgKkz/marco-peruana.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-""", unsafe_allow_html=True)
-
-# ----------------------
-# CONFIGURACIÓN DE LA PÁGINA
-# ----------------------
 st.set_page_config(
     page_title="Registro de Horas Extra",
     page_icon="⏰",
@@ -46,11 +45,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# ==============================
-# ESTILOS
-# ==============================
-st.markdown(
-    """
+st.markdown("""
     <style>
     .stApp {
         background: 
@@ -61,94 +56,118 @@ st.markdown(
         background-attachment: fixed;
     }
     .contenido {
-        margin-top: 0px !important;
+        margin-top: 20px;
         padding: 20px;
         border-radius: 10px;
-        backdrop-filter: blur(8px);
         background-color: rgba(255,255,255,0.2);
+        backdrop-filter: blur(8px);
     }
-    .block-container {
-        padding-top: 0rem;
-    }
-    .campo-datos {
-        margin-bottom: 20px;
-    }
+    .campo-datos { margin-bottom: 20px; }
+    .block-container { padding-top: 0rem; }
     </style>
-    """, unsafe_allow_html=True
-)
+""", unsafe_allow_html=True)
 
 # ==============================
-# CONTENIDO DE LA APP
+# Contenido de la App
 # ==============================
 with st.container():
     st.markdown('<div class="contenido"></div>', unsafe_allow_html=True)
-
     st.subheader("REGISTRO DE HORAS EXTRA")
+
+    # ----------------------
+    # Campos vacíos por defecto
+    # ----------------------
     nombre_empleado = st.text_input("Ingrese su nombre", value="")
-    sueldo_mensual = st.number_input("Ingrese su sueldo mensual (S/):", min_value=0, step=100, format="%d", value=None)
+    sueldo_mensual = st.number_input(
+        "Ingrese su sueldo mensual (S/):",
+        min_value=0,
+        step=100,
+        format="%d",
+        value=None
+    )
     fecha_seleccionada = st.date_input("Seleccione la fecha (día, mes y año)")
 
-    if fecha_seleccionada:
-        anio = fecha_seleccionada.year
-        fecha_str = fecha_seleccionada.strftime("%Y-%m-%d")
+    fecha_str = fecha_seleccionada.strftime("%Y-%m-%d")
 
-        # Cargar datos desde Google Sheets
-        all_data = sheet.get_all_records()
-        df_sheet = pd.DataFrame(all_data)
-        # Filtra si ya hay registro para la fecha seleccionada
-        horas_extra_default = None
-        if not df_sheet.empty:
-            filtro = df_sheet[(df_sheet['Fecha'] == fecha_str) & (df_sheet['Empleado'] == nombre_empleado)]
-            if not filtro.empty:
-                horas_extra_default = filtro.iloc[0]["Horas Extra"]
+    # Cargar horas ya guardadas para esa fecha
+    try:
+        data = sheet.get_all_records()
+        df_sheet = pd.DataFrame(data)
+        horas_previas = df_sheet.loc[(df_sheet["Fecha"]==fecha_str) & (df_sheet["Empleado"]==nombre_empleado), "Horas Extra"]
+        horas_valor = int(horas_previas.iloc[0]) if not horas_previas.empty else None
+    except:
+        horas_valor = None
 
-        peru_feriados = holidays.Peru(years=anio)
-        feriados = [f.strftime("%Y-%m-%d") for f in peru_feriados.keys()]
+    horas_extra = st.number_input(
+        f"Horas extra del día seleccionado:",
+        min_value=0,
+        step=1,
+        value=horas_valor
+    )
 
-        st.subheader(f"Ingrese las horas extra para {fecha_str}")
-        horas_extra = st.number_input(
-            f"Horas extra del día seleccionado:",
-            min_value=0,
-            step=1,
-            format="%d",
-            value=horas_extra_default
-        )
+    st.session_state["registro_horas"][fecha_str] = horas_extra
 
-        st.session_state["registro_horas"][fecha_str] = horas_extra
+    # ==============================
+    # BOTONES
+    # ==============================
+    col1, col2, col3 = st.columns(3)
 
-    # ----------------------
-    # BOTÓN CALCULAR
-    # ----------------------
-    if st.button("Calcular Horas Extra"):
-        if nombre_empleado and sueldo_mensual:
-            valor_hora = round(sueldo_mensual / (8 * 5 * 4.33), 2)
-            registros = []
+    with col1:
+        if st.button("Calcular Horas Extra"):
+            if nombre_empleado and sueldo_mensual:
+                valor_hora = round(sueldo_mensual / (8*5*4.33), 2)
+                registros = []
 
-            for fecha_str, horas in st.session_state["registro_horas"].items():
-                if horas:
-                    fecha = datetime.strptime(fecha_str, "%Y-%m-%d")
-                    dia_semana = fecha.weekday()
-                    es_domingo_o_feriado = (dia_semana >= 5) or (fecha_str in feriados)
-                    if es_domingo_o_feriado:
-                        pago = round(horas * valor_hora * 2, 2)
-                    else:
-                        if horas <= 2:
-                            pago = round(horas * valor_hora * 0.25, 2)
+                for fecha, horas in st.session_state["registro_horas"].items():
+                    if horas:
+                        fecha_dt = datetime.strptime(fecha, "%Y-%m-%d")
+                        dia_semana = fecha_dt.weekday()
+                        peru_feriados = holidays.Peru(years=fecha_dt.year)
+                        feriados = [f.strftime("%Y-%m-%d") for f in peru_feriados.keys()]
+                        es_domingo_o_feriado = (dia_semana==5 or dia_semana==6) or (fecha in feriados)
+
+                        if es_domingo_o_feriado:
+                            pago = round(horas * valor_hora * 2, 2)
                         else:
-                            pago = round(2*valor_hora*0.25 + (horas-2)*valor_hora*0.35, 2)
-                    registros.append({
-                        "Empleado": nombre_empleado,
-                        "Fecha": fecha_str,
-                        "Horas Extra": horas,
-                        "Pago Extra (S/)": pago
-                    })
+                            if horas<=2:
+                                pago = round(horas*valor_hora*0.25,2)
+                            else:
+                                pago = round(2*valor_hora*0.25 + (horas-2)*valor_hora*0.35,2)
 
-            # Guardar en Google Sheets
-            for r in registros:
-                sheet.append_row([r["Empleado"], r["Fecha"], r["Horas Extra"], r["Pago Extra (S/)"]])
+                        registros.append({
+                            "Empleado": nombre_empleado,
+                            "Fecha": fecha,
+                            "Horas Extra": horas,
+                            "Pago Extra (S/)": pago
+                        })
 
-            df = pd.DataFrame(registros)
-            st.subheader("📊 Reporte de Horas Extra")
-            st.dataframe(df)
-            st.success("Datos guardados en Google Sheets ✅")
+                        # Guardar en Google Sheets
+                        try:
+                            df_exist = pd.DataFrame(sheet.get_all_records())
+                            fila_existente = df_exist.loc[(df_exist["Fecha"]==fecha) & (df_exist["Empleado"]==nombre_empleado)].index
+                            if not fila_existente.empty:
+                                sheet.update_cell(fila_existente[0]+2, 3, horas)
+                                sheet.update_cell(fila_existente[0]+2, 4, pago)
+                            else:
+                                sheet.append_row([nombre_empleado, fecha, horas, pago])
+                        except:
+                            sheet.append_row([nombre_empleado, fecha, horas, pago])
 
+                if registros:
+                    df = pd.DataFrame(registros)
+                    st.subheader("📊 Reporte de Horas Extra")
+                    st.dataframe(df)
+                    st.write("💰 **Total de horas extra (S/):**", df["Pago Extra (S/)"].sum())
+            else:
+                st.warning("⚠️ Complete todos los campos.")
+
+    with col2:
+        if st.button("Limpiar Horas Extra"):
+            st.session_state["registro_horas"] = {}
+            st.experimental_rerun()
+
+    with col3:
+        if st.button("Descargar Excel"):
+            df_download = pd.DataFrame(sheet.get_all_records())
+            df_download.to_excel("HorasExtra_Mes_Reporte.xlsx", index=False)
+            st.success("Reporte guardado como 'HorasExtra_Mes_Reporte.xlsx'")
