@@ -34,35 +34,21 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-    /* Fondo dinámico */
+    /* Fondo dinámico con overlay degradado */
     .stApp {
-        background-image: url('https://www.marco.com.pe/wp-content/uploads/2021/01/marco-7.jpg');
+        background: 
+            linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 40%),
+            url('https://www.marco.com.pe/wp-content/uploads/2021/01/marco-7.jpg');
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
     }
 
-    /* Overlay difuminado que varía conforme se baja */
-    .stApp::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 50%, rgba(255,255,255,0.6) 100%);
-        pointer-events: none;
-        z-index: 0;
-    }
-
     /* Contenedor principal */
     .contenido {
-        position: relative;
-        z-index: 1;  /* Contenido encima del overlay */
         margin-top: 20px;
         padding: 20px;
         border-radius: 10px;
-        background-color: rgba(255,255,255,0.85);
     }
 
     /* Separación de campos */
