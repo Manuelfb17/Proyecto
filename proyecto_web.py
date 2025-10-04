@@ -7,7 +7,7 @@ import holidays
 # Configuración inicial de sesión
 # ==============================
 if "registro_horas" not in st.session_state:
-    st.session_state["registro_horas"] = {}  # Guarda todas las horas ingresadas
+    st.session_state["registro_horas"] = {}
 
 # ==============================
 # ICONO Y NOMBRE PARA IOS (PWA)
@@ -29,28 +29,38 @@ st.set_page_config(
 )
 
 # ==============================
-# ESTILOS: difuminar solo el fondo
+# ESTILOS: fondo difuminado solo la imagen
 # ==============================
 st.markdown("""
 <style>
-/* Fondo de la app difuminado */
-.stApp {
-    background: url('https://i.postimg.cc/7PjfgKkz/marco-peruana.png') center/cover no-repeat fixed;
-    filter: blur(4px); /* <-- aquí aplicamos el desenfoque solo a la imagen */
+/* Div de fondo difuminado */
+.fondo {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('https://i.postimg.cc/7PjfgKkz/marco-peruana.png') center/cover no-repeat;
+    filter: blur(4px);
+    z-index: -1;  /* está detrás del contenido */
 }
 
-/* Contenedor principal: mantiene los textos nítidos */
-.stApp > .main {
-    filter: none; /* evita que el contenido se desenfoque */
-}
-
-/* Contenedor principal para separar campos */
+/* Contenido de la app encima del fondo */
 .contenido {
+    position: relative;
+    z-index: 1;
     margin-top: 20px;
     padding: 20px;
     border-radius: 10px;
+    background: rgba(255, 255, 255, 0.6); /* opcional: hace que el fondo quede más visible sin perder legibilidad */
+}
+
+/* Separación de campos */
+.campo-datos {
+    margin-bottom: 20px;
 }
 </style>
+<div class="fondo"></div>
 """, unsafe_allow_html=True)
 
 # ==============================
