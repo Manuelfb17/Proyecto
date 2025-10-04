@@ -29,19 +29,20 @@ st.set_page_config(
 )
 
 # ==============================
-# ESTILOS: Fondo dinámico con difuminado por scroll y dashboard moderno
+# ESTILOS: Fondo dinámico que se difumina con scroll
 # ==============================
 st.markdown("""
 <style>
-/* Fondo dinámico */
+/* Fondo dinámico con overlay para difuminar al bajar */
 .stApp {
+    position: relative;
     background: url('https://www.marco.com.pe/wp-content/uploads/2021/01/marco-7.jpg');
     background-size: cover;
     background-attachment: fixed;
     background-position: center;
 }
 
-/* Overlay para difuminado dinámico con scroll */
+/* Overlay fijo que simula el difuminado dinámico */
 .stApp::before {
     content: "";
     position: fixed;
@@ -49,7 +50,7 @@ st.markdown("""
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(to bottom, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 50%, rgba(255,255,255,0.8) 100%);
+    background: linear-gradient(to bottom, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 40%, rgba(255,255,255,0.8) 100%);
     pointer-events: none;
     z-index: 0;
 }
@@ -60,26 +61,13 @@ st.markdown("""
     z-index: 1;
     margin-top: 20px;
     padding: 20px;
-    border-radius: 15px;
+    border-radius: 10px;
     background-color: rgba(255,255,255,0.85);
-    box-shadow: 0px 4px 15px rgba(0,0,0,0.2);
 }
 
-/* Campos de formulario */
+/* Separación de campos */
 .campo-datos {
     margin-bottom: 20px;
-}
-
-/* Estilo moderno para el número input */
-input[type=number] {
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    padding: 6px 10px;
-}
-
-/* Subheaders */
-h2, h3 {
-    color: #003366;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -117,7 +105,7 @@ with st.container():
         peru_feriados = holidays.Peru(years=anio)
         feriados = [fecha.strftime("%Y-%m-%d") for fecha in peru_feriados.keys()]
 
-        st.markdown("<br>", unsafe_allow_html=True)  # separación visual
+        st.markdown("<br><br>", unsafe_allow_html=True)  # separación visual
         st.subheader(f"Ingrese las horas extra para {fecha_str}")
         horas_extra = st.number_input(
             f"Horas extra del día seleccionado:",
