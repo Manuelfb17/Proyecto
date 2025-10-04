@@ -29,25 +29,26 @@ st.set_page_config(
 )
 
 # ==============================
-# ESTILOS: fondo dinámico + separaciones
+# ESTILOS: fondo dinámico difuminado
 # ==============================
 st.markdown(
     """
     <style>
-    /* Fondo dinámico */
+    /* Fondo dinámico con overlay degradado */
     .stApp {
-        background-image: url('https://www.marco.com.pe/wp-content/uploads/2021/01/marco-7.jpg');
+        background: 
+            linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 40%),
+            url('https://www.marco.com.pe/wp-content/uploads/2021/01/marco-7.jpg');
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
     }
 
-    /* Contenedor de la app */
+    /* Contenedor principal */
     .contenido {
-        margin-top: 20px;  /* separación desde el borde superior */
+        margin-top: 20px;
         padding: 20px;
-        border-radius: 10px; /* opcional */
-        /* background-color: rgba(255,255,255,0.9);  <- QUITADO */
+        border-radius: 10px;
     }
 
     /* Separación de campos */
@@ -55,7 +56,8 @@ st.markdown(
         margin-bottom: 20px;
     }
     </style>
-""", unsafe_allow_html=True)
+    """, unsafe_allow_html=True
+)
 
 # ==============================
 # CONTENIDO DE LA APP
