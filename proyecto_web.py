@@ -10,16 +10,6 @@ if "registro_horas" not in st.session_state:
     st.session_state["registro_horas"] = {}  # Guarda todas las horas ingresadas
 
 # ==============================
-# CONFIGURACIÓN DE LA PÁGINA
-# ==============================
-st.set_page_config(
-    page_title="Registro de Horas Extra",
-    page_icon="⏰",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
-
-# ==============================
 # ICONO Y NOMBRE PARA IOS (PWA)
 # ==============================
 st.markdown("""
@@ -28,28 +18,29 @@ st.markdown("""
 <meta name="apple-mobile-web-app-capable" content="yes">
 """, unsafe_allow_html=True)
 
-# ==============================
-# FONDO CORPORATIVO
-# ==============================
+# ----------------------
+# CONFIGURACIÓN DE LA PÁGINA
+# ----------------------
+st.set_page_config(
+    page_title="Registro de Horas Extra",
+    page_icon="⏰",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# ----------------------
+# ESTILO GENERAL Y FONDO
+# ----------------------
 st.markdown(
     """
     <style>
-    /* Fondo general */
+    /* Fondo de la web de Marco */
     .stApp {
-        background-image: url('https://www.marco.com.pe/wp-content/uploads/2023/03/fondo-marco.jpg');
+        background-image: url("https://www.marco.com.pe/wp-content/uploads/2021/01/marco-7.jpg");
         background-size: cover;
-        background-attachment: fixed;
         background-position: center;
-        background-repeat: no-repeat;
+        background-attachment: fixed;
     }
-
-    /* Contenedores semitransparentes para inputs y textos */
-    .stContainer, .stFrame {
-        background-color: rgba(255,255,255,0.95);
-        padding: 10px;
-        border-radius: 10px;
-    }
-
     /* Banner superior */
     .banner {
         width: 100%;
@@ -64,20 +55,10 @@ st.markdown(
         object-fit: cover;
         display: block;
     }
-
     .campo-datos {
         margin-bottom: 20px;
     }
     </style>
-    """,
-    unsafe_allow_html=True
-)
-
-# ----------------------
-# BANNER SUPERIOR
-# ----------------------
-st.markdown(
-    """
     <div class="banner">
         <img src="https://i.postimg.cc/7PjfgKkz/marco-peruana.png" alt="Marco Peru Banner">
     </div>
@@ -113,6 +94,9 @@ if fecha_seleccionada:
     # Calcular feriados automáticamente
     peru_feriados = holidays.Peru(years=anio)
     feriados = [fecha.strftime("%Y-%m-%d") for fecha in peru_feriados.keys()]
+
+    # Agregar un margen superior antes del subtítulo
+    st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True)
 
     st.subheader("Ingrese las horas extra del día seleccionado")
     with st.container():
