@@ -14,30 +14,28 @@ st.set_page_config(
 )
 
 # ----------------------
-# BANNER SUPERIOR (desliza con scroll)
+# BANNER SUPERIOR DESPLAZABLE
 # ----------------------
 st.markdown(
     """
     <style>
-    .banner-top {
-        position: relative; 
-        top: 0;
-        left: 0;
+    .banner-scroll {
         width: 100%;
         overflow: hidden;
         background-color: white;
         box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
     }
-    .banner-top img {
+    .banner-scroll img {
         width: 100%;
-        height: 280px;
+        height: 260px;     /* altura del banner */
         object-fit: cover;
+        object-position: center 30%; /* mueve el foco hacia abajo mostrando más la parte inferior */
     }
     .content {
-        margin-top: 20px;
+        margin-top: 20px;  /* pequeño espacio debajo del banner */
     }
     </style>
-    <div class="banner-top">
+    <div class="banner-scroll">
         <img src="https://www.marco.com.pe/wp-content/uploads/2021/01/marco-7.jpg" alt="Marco Peru Banner">
     </div>
     <div class="content">
@@ -49,6 +47,7 @@ st.markdown(
 # CONTENIDO DE LA APP
 # ----------------------
 st.title("Registro de Horas Extra")
+
 st.write("Completa los datos para calcular el pago de tus horas extra.")
 
 # lista de feriados en Perú 2025
@@ -81,9 +80,7 @@ def calcular_pago_horas_extra(horas_extra, valor_hora, es_domingo_o_feriado):
             extra = 2 * valor_hora * 0.25 + (horas_extra - 2) * valor_hora * 0.35
             return round(extra, 2)
 
-# ----------------------
-# FORMULARIO DE ENTRADA
-# ----------------------
+# Entradas del usuario
 nombre_empleado = st.text_input("Ingrese su nombre")
 sueldo_mensual = st.number_input("Ingrese su sueldo mensual (S/):", min_value=0.0, step=10.0)
 entrada_normal = st.text_input("Ingrese hora de entrada (ej: 8am, 10pm)")
@@ -92,27 +89,7 @@ salida_normal = st.text_input("Ingrese hora de salida (ej: 5pm, 10pm)")
 anio = st.number_input("Ingrese el año (YYYY):", min_value=2000, max_value=2100, value=datetime.today().year)
 mes = st.number_input("Ingrese el mes (1-12):", min_value=1, max_value=12, value=datetime.today().month)
 
-# ----------------------
-# CAMPOS DE HORAS EXTRA (SIEMPRE VISIBLES)
-# ----------------------
-num_dias = calendar.monthrange(anio, mes)[1]
-if "horas_extra" not in st.session_state:
-    st.session_state.horas_extra = {dia: 0.0 for dia in range(1, num_dias + 1)}
-
-st.subheader("🕒 Registro diario de horas extra")
-for dia in range(1, num_dias + 1):
-    fecha = datetime(anio, mes, dia).strftime("%Y-%m-%d")
-    st.session_state.horas_extra[dia] = st.number_input(
-        f"{fecha} - Horas extra:",
-        min_value=0.0,
-        step=1.0,
-        key=f"dia_{dia}",
-        value=st.session_state.horas_extra.get(dia, 0.0)
-    )
-
-# ----------------------
-# BOTÓN DE CÁLCULO
-# ----------------------
+# Botón de cálculo
 if st.button("Calcular Horas Extra"):
     if nombre_empleado and sueldo_mensual > 0 and entrada_normal and salida_normal:
         hora_entrada = datetime.strptime(convertir_hora_simple(entrada_normal), "%H:%M")
@@ -124,13 +101,16 @@ if st.button("Calcular Horas Extra"):
         valor_hora = round(sueldo_mensual / (duracion_jornada * 5 * 4.33), 2)
 
         registros = []
-        for dia, horas_extra in st.session_state.horas_extra.items():
-            if horas_extra > 0:
-                fecha = datetime(anio, mes, dia)
-                fecha_str = fecha.strftime("%Y-%m-%d")
-                dia_semana = fecha.weekday()
-                es_domingo_o_feriado = (dia_semana == 6) or (fecha_str in feriados)
+        num_dias = calendar.monthrange(anio, mes)[1]
 
+        for dia in range(1, num_dias + 1):
+            fecha = datetime(anio, mes, dia)
+            fecha_str = fecha.strftime("%Y-%m-%d")
+            dia_semana = fecha.weekday()
+            es_domingo_o_feriado = (dia_semana == 6) or (fecha_str in feriados)
+
+            horas_extra = st.number_input(f"{fecha_str} - Horas extra:", min_value=0.0, step=1.0, key=dia)
+            if horas_extra > 0:
                 pago = calcular_pago_horas_extra(horas_extra, valor_hora, es_domingo_o_feriado)
                 registros.append({
                     "Empleado": nombre_empleado,
@@ -150,7 +130,5 @@ if st.button("Calcular Horas Extra"):
     else:
         st.warning("⚠️ Complete todos los campos para calcular.")
 
-# ----------------------
-# Cerrar content
-# ----------------------
+# Cerrar el div content
 st.markdown("</div>", unsafe_allow_html=True)
