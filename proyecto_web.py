@@ -29,38 +29,30 @@ st.set_page_config(
 )
 
 # ==============================
-# ESTILOS: fondo difuminado
+# ESTILOS: fondo con difuminado detrás de los contenidos
 # ==============================
-st.markdown(
-    """
-    <style>
-    /* Fondo de la app con desenfoque */
-    .stApp::before {
-        content: "";
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: url('https://www.marco.com.pe/wp-content/uploads/2021/01/marco-7.jpg') center/cover no-repeat;
-        filter: blur(5px);  /* <-- Desenfoque del fondo */
-        z-index: -1;        /* <-- Mantener atrás de todo el contenido */
-    }
+st.markdown("""
+<style>
+/* Fondo de la app */
+.stApp {
+    background: url('https://www.marco.com.pe/wp-content/uploads/2021/01/marco-7.jpg') center/cover no-repeat fixed;
+}
 
-    /* Contenedor principal */
-    .contenido {
-        margin-top: 20px;
-        padding: 20px;
-        border-radius: 10px;
-    }
+/* Contenedor principal con fondo difuminado */
+.contenido {
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.2); /* ligera capa blanca transparente */
+    backdrop-filter: blur(5px); /* <-- aquí se desenfoca el fondo detrás */
+}
 
-    /* Separación de campos */
-    .campo-datos {
-        margin-bottom: 20px;
-    }
-    </style>
-    """, unsafe_allow_html=True
-)
+/* Separación de campos */
+.campo-datos {
+    margin-bottom: 20px;
+}
+</style>
+""", unsafe_allow_html=True)
 
 # ==============================
 # CONTENIDO DE LA APP
@@ -68,7 +60,6 @@ st.markdown(
 with st.container():
     st.markdown('<div class="contenido"></div>', unsafe_allow_html=True)
 
-    # BLOQUE DE DATOS GENERALES
     st.subheader("REGISTRO DE HORAS EXTRA")
     nombre_empleado = st.text_input("Ingrese su nombre", value="")
     sueldo_mensual = st.number_input(
@@ -80,7 +71,6 @@ with st.container():
     )
     fecha_seleccionada = st.date_input("Seleccione la fecha (día, mes y año)", value=None)
 
-    # BLOQUE HORAS EXTRA
     if fecha_seleccionada:
         anio = fecha_seleccionada.year
         mes = fecha_seleccionada.month
@@ -101,7 +91,6 @@ with st.container():
         )
         st.session_state["registro_horas"][fecha_str] = horas_extra
 
-    # BOTÓN CALCULAR Y TABLA
     if st.button("Calcular Horas Extra"):
         if nombre_empleado and sueldo_mensual:
             valor_hora = round(sueldo_mensual / (8 * 5 * 4.33), 2)
