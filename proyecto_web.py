@@ -29,30 +29,38 @@ st.set_page_config(
 )
 
 # ----------------------
-# ESTILO GENERAL Y FONDO
+# ESTILO GENERAL, FONDO Y CABECERA
 # ----------------------
 st.markdown(
     """
     <style>
-    /* Fondo de la web de Marco */
+    /* Fondo dinámico */
     .stApp {
         background-image: url("https://www.marco.com.pe/wp-content/uploads/2021/01/marco-7.jpg");
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
     }
+
+    /* Campos de entrada */
     .campo-datos {
         margin-bottom: 20px;
     }
-    /* Encabezado con logo */
-    .header-logo {
+
+    /* Encabezado */
+    .header {
         width: 100%;
-        text-align: center;
+        background-color: white;
+        padding: 10px 20px;
+        display: flex;
+        align-items: center;
+        box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
         margin-bottom: 25px;
     }
-    .header-logo img {
-        max-width: 100%;
-        height: auto;
+
+    .header img {
+        height: 60px;
+        width: auto;
     }
     </style>
     """,
@@ -60,11 +68,11 @@ st.markdown(
 )
 
 # ----------------------
-# ENCABEZADO CON LOGO
+# ENCABEZADO CON LOGO A LA IZQUIERDA
 # ----------------------
 st.markdown(
     """
-    <div class="header-logo">
+    <div class="header">
         <img src="https://www.marco.com.pe/wp-content/uploads/2020/11/logo-marco-COLOR.svg" alt="Logo Marco">
     </div>
     """,
