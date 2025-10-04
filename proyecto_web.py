@@ -65,29 +65,18 @@ with st.container():
     st.markdown('<div class="contenido"></div>', unsafe_allow_html=True)
     st.subheader("REGISTRO DE HORAS EXTRA")
 
-    # Campos vacíos por defecto
+    # Campos vacíos sin valores por defecto
     nombre_empleado = st.text_input("Ingrese su nombre", value="")
-    sueldo_mensual = st.number_input(
-        "Ingrese su sueldo mensual (S/):",
-        min_value=0,
-        step=100,
-        format="%d",
-        value=0
-    )
-
+    sueldo_mensual = st.text_input("Ingrese su sueldo mensual (S/):", value="")  # ahora es text_input vacío
     fecha_seleccionada = st.date_input("Seleccione la fecha (día, mes y año)")
 
-    # Contenedor para horas extra que puede aparecer vacío
+    # Contenedor para horas extra vacío
     horas_extra_input = st.empty()
     horas_extra_val = None
     if fecha_seleccionada:
         fecha_str = fecha_seleccionada.strftime("%Y-%m-%d")
-        horas_extra_val = horas_extra_input.number_input(
-            f"Horas extra del día {fecha_str}:",
-            min_value=0,
-            step=1,
-            format="%d",
-            value=0
+        horas_extra_val = horas_extra_input.text_input(
+            f"Horas extra del día {fecha_str}:", value=""
         )
 
     # Botón Limpiar historial
@@ -99,8 +88,20 @@ with st.container():
 
     # Botón Calcular
     if st.button("Calcular Horas Extra"):
-        if nombre_empleado and sueldo_mensual and fecha_seleccionada:
-            st.session_state["registro_horas"][fecha_str] = horas_extra_val
+        if nombre_empleado.strip() and sueldo_mensual.strip() and fecha_seleccionada:
+            try:
+                sueldo_val = float(sueldo_mensual)
+            except ValueError:
+                st.warning("Ingrese un sueldo válido")
+                st.stop()
+
+            if horas_extra_val.strip() != "":
+                horas_val = float(horas_extra_val)
+            else:
+                horas_val = 0
+
+            st.session_state["registro_horas"][fecha_str] = horas_val
+
             # Guardar CSV
             df_guardar = pd.DataFrame([
                 {"Empleado": nombre_empleado,
@@ -122,7 +123,7 @@ with st.container():
                 dia_semana = fecha_obj.weekday()
                 es_domingo_o_feriado = (dia_semana == 5 or dia_semana == 6) or (f in feriados)
 
-                valor_hora = round(sueldo_mensual / (8*5*4.33), 2)
+                valor_hora = round(sueldo_val / (8*5*4.33), 2)
                 if es_domingo_o_feriado:
                     pago = round(h * valor_hora * 2, 2)
                 else:
