@@ -2,9 +2,6 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 import holidays
-from openpyxl import Workbook
-from openpyxl.utils.dataframe import dataframe_to_rows
-from openpyxl.styles import Font
 
 # ==============================
 # Configuración inicial de sesión
@@ -32,7 +29,7 @@ st.set_page_config(
 )
 
 # ==============================
-# ESTILOS: fondo dinámico con degradado + blur contenedor
+# ESTILOS: fondo dinámico y blur en contenedor
 # ==============================
 st.markdown(
     """
@@ -49,13 +46,19 @@ st.markdown(
 
     /* Contenedor principal con blur solo del fondo */
     .contenido {
-        margin-top: 20px;
+        margin-top: 0px !important;  /* Pegado al inicio */
         padding: 20px;
         border-radius: 10px;
-        backdrop-filter: blur(8px); /* desenfoque del fondo detrás del contenedor */
-        background-color: rgba(255,255,255,0.2); /* semi-transparente */
+        backdrop-filter: blur(8px);
+        background-color: rgba(255,255,255,0.2);
     }
 
+    /* Quitar padding/margen extra de Streamlit */
+    .block-container {
+        padding-top: 0rem;
+    }
+
+    /* Separación de campos */
     .campo-datos {
         margin-bottom: 20px;
     }
@@ -69,6 +72,9 @@ st.markdown(
 with st.container():
     st.markdown('<div class="contenido"></div>', unsafe_allow_html=True)
 
+    # ----------------------
+    # BLOQUE DE DATOS GENERALES
+    # ----------------------
     st.subheader("REGISTRO DE HORAS EXTRA")
     nombre_empleado = st.text_input("Ingrese su nombre", value="")
     sueldo_mensual = st.number_input(
@@ -80,12 +86,18 @@ with st.container():
     )
     fecha_seleccionada = st.date_input("Seleccione la fecha (día, mes y año)", value=None)
 
+    # ----------------------
+    # BLOQUE HORAS EXTRA
+    # ----------------------
     if fecha_seleccionada:
+        anio = fecha_seleccionada.year
         fecha_str = fecha_seleccionada.strftime("%Y-%m-%d")
-        peru_feriados = holidays.Peru(years=fecha_seleccionada.year)
+
+        # Calcular feriados automáticamente
+        peru_feriados = holidays.Peru(years=anio)
         feriados = [fecha.strftime("%Y-%m-%d") for fecha in peru_feriados.keys()]
 
-        st.markdown("<br><br>", unsafe_allow_html=True)
+        st.markdown("<br><br>", unsafe_allow_html=True)  # separación visual
         st.subheader(f"Ingrese las horas extra para {fecha_str}")
         horas_extra = st.number_input(
             f"Horas extra del día seleccionado:",
@@ -94,8 +106,12 @@ with st.container():
             format="%d",
             value=st.session_state["registro_horas"].get(fecha_str, None)
         )
+        # Guardar automáticamente en session_state
         st.session_state["registro_horas"][fecha_str] = horas_extra
 
+    # ----------------------
+    # BOTÓN CALCULAR Y TABLA
+    # ----------------------
     if st.button("Calcular Horas Extra"):
         if nombre_empleado and sueldo_mensual:
             valor_hora = round(sueldo_mensual / (8 * 5 * 4.33), 2)
@@ -104,9 +120,10 @@ with st.container():
             for fecha_str, horas in st.session_state["registro_horas"].items():
                 if horas:
                     fecha = datetime.strptime(fecha_str, "%Y-%m-%d")
-                    dia_semana = fecha.weekday()
+                    dia_semana = fecha.weekday()  # 0=lunes, 6=domingo
                     es_domingo_o_feriado = (dia_semana == 5 or dia_semana == 6) or (fecha_str in feriados)
 
+                    # Lógica de horas extra
                     if es_domingo_o_feriado:
                         pago = round(horas * valor_hora * 2, 2)
                     else:
@@ -127,29 +144,9 @@ with st.container():
                 st.subheader("📊 Reporte de Horas Extra")
                 st.dataframe(df)
                 st.write("💰 **Total de horas extra (S/):**", df["Pago Extra (S/)"].sum())
-
+                
                 # Guardar Excel con columnas independientes
-                wb = Workbook()
-                ws = wb.active
-                ws.title = "Horas Extra"
-
-                for col_num, column_title in enumerate(df.columns, 1):
-                    cell = ws.cell(row=1, column=col_num, value=column_title)
-                    cell.font = Font(bold=True)
-
-                for r_idx, row in enumerate(dataframe_to_rows(df, index=False, header=False), 2):
-                    for c_idx, value in enumerate(row, 1):
-                        ws.cell(row=r_idx, column=c_idx, value=value)
-
-                for col in ws.columns:
-                    max_length = 0
-                    column = col[0].column_letter
-                    for cell in col:
-                        if cell.value:
-                            max_length = max(max_length, len(str(cell.value)))
-                    ws.column_dimensions[column].width = max_length + 2
-
-                wb.save("HorasExtra_Mes_Reporte.xlsx")
+                df.to_excel("HorasExtra_Mes_Reporte.xlsx", index=False)
                 st.success("Reporte guardado como 'HorasExtra_Mes_Reporte.xlsx'")
             else:
                 st.info("No se ingresaron horas extra.")
