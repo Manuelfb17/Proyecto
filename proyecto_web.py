@@ -29,30 +29,29 @@ st.set_page_config(
 )
 
 # ==============================
-# ESTILOS: desenfoque solo detrás del contenido
+# ESTILOS: fondo difuminado
 # ==============================
 st.markdown(
     """
     <style>
-    /* Fondo de toda la app */
-    .stApp {
-        background: url('https://www.marco.com.pe/wp-content/uploads/2021/01/marco-7.jpg');
-        background-size: cover;
-        background-position: center;
-        background-attachment: fixed;
-        position: relative;
+    /* Fondo de la app con desenfoque */
+    .stApp::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url('https://www.marco.com.pe/wp-content/uploads/2021/01/marco-7.jpg') center/cover no-repeat;
+        filter: blur(5px);  /* <-- Desenfoque del fondo */
+        z-index: -1;        /* <-- Mantener atrás de todo el contenido */
     }
 
-    /* Contenedor principal con desenfoque detrás */
+    /* Contenedor principal */
     .contenido {
         margin-top: 20px;
         padding: 20px;
         border-radius: 10px;
-        position: relative;
-        z-index: 1;
-        background-color: rgba(255,255,255,0.25); /* Fondo semitransparente */
-        backdrop-filter: blur(6px); /* <-- Desenfoca solo lo que está detrás del contenedor */
-        -webkit-backdrop-filter: blur(6px);
     }
 
     /* Separación de campos */
