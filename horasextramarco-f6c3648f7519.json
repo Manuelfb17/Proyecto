@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "horasextramarco",
+  "private_key_id": "f6c3648f7519977100a12ce1301f06e1051075a0",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDAsZMZ2CO3U584\nTrM7TnlW4HXX9CGFJQt8wY34Hx9BOSCufNHcnjE9WD8nqrTun5P0H1atXBYJIZc0\nYv/NThz957VM+VAW+ZHo2akpq7FLZI7tj8Y7X3UvVzMF58JznNeBCbVquTiVB5Av\n5F+CL32P02CbkXmWYh/1ROMlzFAcwM8/oyFBZRyRkHyAkbi41O7PhqXTSYUTM76h\nYZNUv/1ybz4nWuET4vyiy1LvfI7AAuXcxXfXvg71cYoa4s1vE7JSIsYqv7Z9Aple\nAjNk/XC+kLadDRyggVbCWXbPBziLBwkrRQ5vh2c/b9u1fCTPv16EGmWo37pQn5Ah\nwPgpuO51AgMBAAECggEAFaDY3gHAoIcmS++pdnKsc+/lykOAr60kyPAAu2Ti4TNE\nU9F2zMiExlntXMpwXIhU1wXdeL/pSUUX761dAPJPlsA3PViOgMWqdvRXZHH9CHVV\nBZ0ppuhkAthKxdLppIhqN/WbA0ue6jtbF8UOY1JpSYd0RIHjn9mLtL/yrv9rzo4z\ncwIIw0WQSX5DSpj6jG7Pm+xgqSRhpoxkLZpJCIYMIxYl5S3y/CREpJ9pJ38U+7+5\nHoLprRMXyUshfABsZHYYl8lZ2gkkSIVR/ToDvysiJfzWbC+7Q2/lpu7Y/1UgNIlt\nTnYgtu6X5FihfNJ8+JxhgaQ9li/3VRDg+lTQx6q3AQKBgQD8ArMxJtw6LVGYtEP3\nDZzDpyPIR+Q2MEe0rfgwAvOJytB+PGzFiV5Et068xChyuwVjHEMw88D+LMp6rv7u\nV65XWv27FEXXDIypX13m5Kw+9p+25blB/ZATq007onZsjoFRfACne3YhiaN9AlQt\nCMFy1hzG195B/QekDCfIepkdJQKBgQDDvnyLReLTqybrSQXi49Q3l1V7Nk32qsA7\nt5tFboHQdzxvnoLpxZFb36b7jKAZak7G4pz/enGNFNYD5cSs8kfOlITmODLvqyZd\nCyuSwlb+yuZnqtz9vtAX1nBSn8EeD2XGccH+prFmdeJwm1pMTogUHkTrtoCmyRN3\nUWUD0T9TEQKBgQCOkqR4GUkcrMjuAIY2/f+DfUq0I2AL/DKFGKtB1lmbyh88W8kZ\n1IZ9j8s+5icQCZiZosKsriqwYfzHfbuCch6TE0pbDbQZXuMxa1+/of2EvZhMLBks\nKVzak95k75vZ/KFSzTm9hw6lGK5iqe+fbsWqx1GOeVAnuxQYjjvvotR+9QKBgApD\nNmxm4ZmPY576WSCoKTww5v5qvnOsSB/ZZH6jaJLxbW28tchj31cdxrdxjANJG5A5\n2VlbphBrgzz5EvKuUS13g/A+Cg2ev4gpScOMBNue762Hu8Zh9q8JQyJR1eIplIBu\n/mjHfI2OqKyWuIk/pMrJO3vQObaE3ExpLA6jLdrBAoGASAcblwCmCns55cB1yTiJ\nbEmbhY3ZwWI40VfP9enYoBT1kY87a4IY0J/oEYXSdcFAis1bXxZlemrKY5x/+BWS\n3OcoWRyebCTZoahvYP+iIe+HxtP7iDm378YqHA1NNeelF2ITdbgaNaGVqD3knyEB\nJ2+bIBBlYYa909C4X8LxP+s=\n-----END PRIVATE KEY-----\n",
+  "client_email": "streamlit-service@horasextramarco.iam.gserviceaccount.com",
+  "client_id": "115817953963634752286",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/streamlit-service%40horasextramarco.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
