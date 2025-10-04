@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 import holidays
+from io import BytesIO
 
 # ==============================
 # Configuración inicial de sesión
@@ -72,9 +73,7 @@ st.markdown(
 with st.container():
     st.markdown('<div class="contenido"></div>', unsafe_allow_html=True)
 
-    # ----------------------
     # BLOQUE DE DATOS GENERALES
-    # ----------------------
     st.subheader("REGISTRO DE HORAS EXTRA")
     nombre_empleado = st.text_input("Ingrese su nombre", value="")
     sueldo_mensual = st.number_input(
@@ -86,9 +85,7 @@ with st.container():
     )
     fecha_seleccionada = st.date_input("Seleccione la fecha (día, mes y año)", value=None)
 
-    # ----------------------
     # BLOQUE HORAS EXTRA
-    # ----------------------
     if fecha_seleccionada:
         anio = fecha_seleccionada.year
         fecha_str = fecha_seleccionada.strftime("%Y-%m-%d")
@@ -109,9 +106,7 @@ with st.container():
         # Guardar automáticamente en session_state
         st.session_state["registro_horas"][fecha_str] = horas_extra
 
-    # ----------------------
     # BOTÓN CALCULAR Y TABLA
-    # ----------------------
     if st.button("Calcular Horas Extra"):
         if nombre_empleado and sueldo_mensual:
             valor_hora = round(sueldo_mensual / (8 * 5 * 4.33), 2)
@@ -145,12 +140,19 @@ with st.container():
                 st.dataframe(df)
                 st.write("💰 **Total de horas extra (S/):**", df["Pago Extra (S/)"].sum())
                 
-                # ----------------------
-                # Guardar Excel correctamente
-                # ----------------------
-                archivo_excel = "HorasExtra_Mes_Reporte.xlsx"
-                df.to_excel(archivo_excel, index=False, engine='openpyxl')
-                st.success(f"Reporte guardado como '{archivo_excel}'")
+                # Guardar Excel en memoria
+                output = BytesIO()
+                with pd.ExcelWriter(output, engine='openpyxl') as writer:
+                    df.to_excel(writer, index=False, sheet_name="Horas Extra")
+                processed_data = output.getvalue()
+
+                # Botón de descarga
+                st.download_button(
+                    label="📥 Descargar Excel",
+                    data=processed_data,
+                    file_name="HorasExtra_Mes_Reporte.xlsx",
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                )
             else:
                 st.info("No se ingresaron horas extra.")
         else:
