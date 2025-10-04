@@ -29,53 +29,35 @@ st.set_page_config(
 )
 
 # ==============================
-# ESTILOS: fondo dinámico + blur con scroll
+# ESTILOS: fondo dinámico difuminado
 # ==============================
-st.markdown("""
-<style>
-/* Fondo dinámico fijo detrás de todo */
-#fondo-blur {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: url('https://www.marco.com.pe/wp-content/uploads/2021/01/marco-7.jpg');
-    background-size: cover;
-    background-position: center;
-    z-index: -1; /* siempre detrás del contenido */
-    filter: blur(0px);
-    transition: filter 0.2s;
-}
+st.markdown(
+    """
+    <style>
+    /* Fondo dinámico con overlay degradado */
+    .stApp {
+        background: 
+            linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 40%),
+            url('https://www.marco.com.pe/wp-content/uploads/2021/01/marco-7.jpg');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    }
 
-/* Contenedor principal */
-.contenido {
-    margin-top: 20px;
-    padding: 20px;
-    border-radius: 10px;
-    background-color: rgba(255,255,255,0.85);
-    position: relative;
-    z-index: 1;
-}
+    /* Contenedor principal */
+    .contenido {
+        margin-top: 20px;
+        padding: 20px;
+        border-radius: 10px;
+    }
 
-/* Separación de campos */
-.campo-datos {
-    margin-bottom: 20px;
-}
-</style>
-
-<div id="fondo-blur"></div>
-
-<script>
-const fondo = window.parent.document.getElementById('fondo-blur');
-window.addEventListener('scroll', () => {
-    const scrollY = window.scrollY;
-    const maxBlur = 8; // px de desenfoque máximo
-    const factor = Math.min(scrollY / 300, 1); // se ajusta el rango
-    fondo.style.filter = `blur(${factor * maxBlur}px)`;
-});
-</script>
-""", unsafe_allow_html=True)
+    /* Separación de campos */
+    .campo-datos {
+        margin-bottom: 20px;
+    }
+    </style>
+    """, unsafe_allow_html=True
+)
 
 # ==============================
 # CONTENIDO DE LA APP
@@ -83,7 +65,9 @@ window.addEventListener('scroll', () => {
 with st.container():
     st.markdown('<div class="contenido"></div>', unsafe_allow_html=True)
 
+    # ----------------------
     # BLOQUE DE DATOS GENERALES
+    # ----------------------
     st.subheader("REGISTRO DE HORAS EXTRA")
     nombre_empleado = st.text_input("Ingrese su nombre", value="")
     sueldo_mensual = st.number_input(
@@ -95,17 +79,20 @@ with st.container():
     )
     fecha_seleccionada = st.date_input("Seleccione la fecha (día, mes y año)", value=None)
 
+    # ----------------------
     # BLOQUE HORAS EXTRA
+    # ----------------------
     if fecha_seleccionada:
         anio = fecha_seleccionada.year
         mes = fecha_seleccionada.month
         dia = fecha_seleccionada.day
         fecha_str = fecha_seleccionada.strftime("%Y-%m-%d")
 
+        # Calcular feriados automáticamente
         peru_feriados = holidays.Peru(years=anio)
         feriados = [fecha.strftime("%Y-%m-%d") for fecha in peru_feriados.keys()]
 
-        st.markdown("<br><br>", unsafe_allow_html=True)
+        st.markdown("<br><br>", unsafe_allow_html=True)  # separación visual
         st.subheader(f"Ingrese las horas extra para {fecha_str}")
         horas_extra = st.number_input(
             f"Horas extra del día seleccionado:",
@@ -114,9 +101,12 @@ with st.container():
             format="%d",
             value=st.session_state["registro_horas"].get(fecha_str, None)
         )
+        # Guardar automáticamente en session_state
         st.session_state["registro_horas"][fecha_str] = horas_extra
 
+    # ----------------------
     # BOTÓN CALCULAR Y TABLA
+    # ----------------------
     if st.button("Calcular Horas Extra"):
         if nombre_empleado and sueldo_mensual:
             valor_hora = round(sueldo_mensual / (8 * 5 * 4.33), 2)
@@ -125,9 +115,10 @@ with st.container():
             for fecha_str, horas in st.session_state["registro_horas"].items():
                 if horas:
                     fecha = datetime.strptime(fecha_str, "%Y-%m-%d")
-                    dia_semana = fecha.weekday()
+                    dia_semana = fecha.weekday()  # 0=lunes, 6=domingo
                     es_domingo_o_feriado = (dia_semana == 5 or dia_semana == 6) or (fecha_str in feriados)
 
+                    # Lógica de horas extra
                     if es_domingo_o_feriado:
                         pago = round(horas * valor_hora * 2, 2)
                     else:
