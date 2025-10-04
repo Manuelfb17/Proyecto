@@ -11,7 +11,7 @@ st.markdown("""
 <meta name="apple-mobile-web-app-title" content="Horas Extra Marco">
 
 <!-- Icono que se usará en la pantalla de inicio -->
-<link rel="apple-touch-icon" sizes="180x180" href="https://raw.githubusercontent.com/Manuelfb17/Proyecto/refs/heads/main/marco-peruana.png">
+<link rel="apple-touch-icon" sizes="180x180" href="https://i.postimg.cc/7PjfgKkz/marco-peruana.png">
 
 <!-- Permite que la app se abra en pantalla completa -->
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -48,7 +48,7 @@ st.markdown(
     }
     </style>
     <div class="banner">
-        <img src="https://raw.githubusercontent.com/Manuelfb17/Proyecto/refs/heads/main/marco-peruana.png" alt="Marco Peru Banner">
+        <img src="https://i.postimg.cc/7PjfgKkz/marco-peruana.png" alt="Marco Peru Banner">
     </div>
     """,
     unsafe_allow_html=True
