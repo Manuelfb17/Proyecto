@@ -58,7 +58,6 @@ st.markdown(
 # CONTENIDO DE LA APP
 # ----------------------
 st.title("Registro de Horas Extra")
-st.write("Completa los datos para calcular el pago de tus horas extra.")
 
 # lista de feriados en Perú 2025
 feriados = [
