@@ -18,6 +18,57 @@ st.markdown("""
 <meta name="apple-mobile-web-app-capable" content="yes">
 """, unsafe_allow_html=True)
 
+# ==============================
+# ESTILO Y FONDO DE PANTALLA
+# ==============================
+st.markdown("""
+<style>
+body {
+    background-image: url('https://www.marco.com.pe/wp-content/uploads/2020/11/IMG_20201117_110136.jpg');
+    background-size: cover;
+    background-position: center;
+    color: #ffffff;
+}
+.stButton button {
+    background-color: #005f73;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.stButton button:hover {
+    background-color: #0a9396;
+}
+.stTextInput input, .stNumberInput input, .stDateInput input {
+    background-color: #e9d8a6;
+    color: #005f73;
+    border: 1px solid #005f73;
+    border-radius: 5px;
+    padding: 10px;
+}
+.stTextInput input:focus, .stNumberInput input:focus, .stDateInput input:focus {
+    border-color: #0a9396;
+}
+.banner {
+    width: 100%;
+    overflow: hidden;
+    background-color: white;
+    box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
+    margin-bottom: 25px;
+}
+.banner img {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    display: block;
+}
+.campo-datos {
+    margin-bottom: 20px;
+}
+</style>
+""", unsafe_allow_html=True)
+
 # ----------------------
 # CONFIGURACIÓN DE LA PÁGINA
 # ----------------------
@@ -33,24 +84,6 @@ st.set_page_config(
 # ----------------------
 st.markdown(
     """
-    <style>
-    .banner {
-        width: 100%;
-        overflow: hidden;
-        background-color: white;
-        box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
-        margin-bottom: 25px;
-    }
-    .banner img {
-        width: 100%;
-        height: 300px;
-        object-fit: cover;
-        display: block;
-    }
-    .campo-datos {
-        margin-bottom: 20px;
-    }
-    </style>
     <div class="banner">
         <img src="https://i.postimg.cc/7PjfgKkz/marco-peruana.png" alt="Marco Peru Banner">
     </div>
@@ -61,7 +94,7 @@ st.markdown(
 # ----------------------
 # BLOQUE DE DATOS GENERALES
 # ----------------------
-st.subheader("REGISTRO DE HORAS EXTRA")
+st.subheader("Datos del empleado")
 with st.container():
     st.markdown("<div class='campo-datos'></div>", unsafe_allow_html=True)
     nombre_empleado = st.text_input("Ingrese su nombre", value="")
