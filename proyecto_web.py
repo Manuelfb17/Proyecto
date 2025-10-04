@@ -2,10 +2,10 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 import holidays
-import os
 from io import BytesIO
+import os
 
-# Archivo para guardar los datos
+# Archivo para guardar datos
 archivo_datos = "registro_horas.csv"
 
 # ==============================
@@ -82,18 +82,12 @@ with st.container():
     horas_extra_val = None
     if fecha_seleccionada:
         fecha_str = fecha_seleccionada.strftime("%Y-%m-%d")
-        # Si ya hay horas guardadas, mostrar ese valor
-        if fecha_str in st.session_state["registro_horas"]:
-            valor = st.session_state["registro_horas"][fecha_str]
-        else:
-            valor = None
-        # number_input solo se muestra si hay valor
         horas_extra_val = horas_extra_input.number_input(
             f"Horas extra del día {fecha_str}:",
             min_value=0,
             step=1,
             format="%d",
-            value=valor if valor is not None else 0
+            value=0
         )
 
     # Botón Limpiar historial
@@ -105,7 +99,7 @@ with st.container():
 
     # Botón Calcular
     if st.button("Calcular Horas Extra"):
-        if nombre_empleado and sueldo_mensual and fecha_seleccionada and horas_extra_val is not None:
+        if nombre_empleado and sueldo_mensual and fecha_seleccionada:
             st.session_state["registro_horas"][fecha_str] = horas_extra_val
             # Guardar CSV
             df_guardar = pd.DataFrame([
