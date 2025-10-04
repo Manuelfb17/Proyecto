@@ -52,7 +52,7 @@ st.markdown("""
     margin-top: 20px;
     padding: 20px;
     border-radius: 10px;
-    background: rgba(255, 255, 255, 0.6); /* opcional: hace que el fondo quede más visible sin perder legibilidad */
+    /* background: rgba(255, 255, 255, 0.6);  <- QUITADO */
 }
 
 /* Separación de campos */
