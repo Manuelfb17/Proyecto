@@ -14,34 +14,28 @@ st.set_page_config(
 )
 
 # ----------------------
-# BANNER SUPERIOR FIJO (imagen a todo el ancho)
+# BANNER SUPERIOR (imagen a todo el ancho, se desliza al hacer scroll)
 # ----------------------
 st.markdown(
     """
     <style>
-    .banner-fixed {
-        position: fixed;
-        top: 0;
-        left: 0;
+    .banner {
         width: 100%;
-        z-index: 999;
         overflow: hidden;
         background-color: white;
         box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
     }
-    .banner-fixed img {
+    .banner img {
         width: 100%;
         height: 300px;   /* altura aumentada */
         object-fit: cover; /* cubre todo el ancho */
-    }
-    .content {
-        margin-top: 310px;  /* espacio debajo del banner */
+        display: block;
     }
     </style>
-    <div class="banner-fixed">
+    <div class="banner">
         <img src="https://www.marco.com.pe/wp-content/uploads/2021/01/marco-7.jpg" alt="Marco Peru Banner">
     </div>
-    <div class="content">
     """,
     unsafe_allow_html=True
 )
@@ -132,6 +126,3 @@ if st.button("Calcular Horas Extra"):
             st.success("Reporte guardado como 'HorasExtra_Mes_Reporte.xlsx'")
     else:
         st.warning("⚠️ Complete todos los campos para calcular.")
-
-# Cerrar el div content
-st.markdown("</div>", unsafe_allow_html=True)
