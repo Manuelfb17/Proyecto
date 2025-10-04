@@ -54,19 +54,6 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==============================
-# CONTENEDOR PRINCIPAL
-# ==============================
-with st.container():
-    st.markdown('<div class="contenido"></div>', unsafe_allow_html=True)
-
-    st.subheader("REGISTRO DE HORAS EXTRA")
-    
-    # Campos siempre vacíos
-    nombre_empleado = st.text_input("Ingrese su nombre", value="")
-    sueldo_mensual = st.number_input("Ingrese su sueldo mensual (S/):", min_value=0, step=100, format="%d", value=0)
-    fecha_seleccionada = st.date_input("Seleccione la fecha (día, mes y año)")
-
-# ==============================
 # CARGAR HISTORIAL DESDE JSON
 # ==============================
 historial = {}
@@ -78,9 +65,23 @@ if "registro_horas" not in st.session_state:
     st.session_state["registro_horas"] = historial
 
 # ==============================
+# CONTENEDOR PRINCIPAL
+# ==============================
+with st.container():
+    st.markdown('<div class="contenido"></div>', unsafe_allow_html=True)
+    st.subheader("REGISTRO DE HORAS EXTRA")
+    
+    # Campos vacíos por defecto
+    nombre_empleado = st.text_input("Ingrese su nombre")
+    sueldo_mensual = st.text_input("Ingrese su sueldo mensual (S/)")
+    
+    # Fecha inicialmente vacía (streamlit no permite vaciar date_input, se usa workaround)
+    fecha_seleccionada = st.date_input("Seleccione la fecha (día, mes y año)", key="fecha", value=None)
+
+# ==============================
 # HORAS EXTRA POR FECHA
 # ==============================
-horas_extra = 0  # siempre vacío por defecto
+horas_extra = None
 if fecha_seleccionada:
     anio = fecha_seleccionada.year
     fecha_str = fecha_seleccionada.strftime("%Y-%m-%d")
@@ -97,7 +98,7 @@ if fecha_seleccionada:
         min_value=0,
         step=1,
         format="%d",
-        value=0
+        value=None
     )
 
 # ==============================
@@ -108,11 +109,18 @@ col1, col2 = st.columns(2)
 with col1:
     if st.button("Calcular Horas Extra"):
         if nombre_empleado and sueldo_mensual:
-            # Guardar solo si se ingresó algo
-            if fecha_seleccionada and horas_extra > 0:
+            # Convertir sueldo a float
+            try:
+                sueldo = float(sueldo_mensual)
+            except:
+                st.warning("Ingrese un sueldo válido")
+                st.stop()
+
+            # Guardar solo si se ingresó horas
+            if fecha_seleccionada and horas_extra is not None:
                 historial[fecha_str] = horas_extra
 
-            valor_hora = round(sueldo_mensual / (8 * 5 * 4.33), 2)
+            valor_hora = round(sueldo / (8 * 5 * 4.33), 2)
             registros = []
 
             for fecha, horas in historial.items():
@@ -164,7 +172,12 @@ with col2:
 # MOSTRAR REPORTE AUTOMÁTICO SI HAY HISTORIAL
 # ==============================
 if historial:
-    valor_hora = round(sueldo_mensual / (8 * 5 * 4.33), 2)
+    if nombre_empleado and sueldo_mensual:
+        try:
+            sueldo = float(sueldo_mensual)
+        except:
+            sueldo = 0
+        valor_hora = round(sueldo / (8 * 5 * 4.33), 2)
     registros = []
     for fecha, horas in historial.items():
         if horas:
