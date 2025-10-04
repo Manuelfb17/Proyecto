@@ -83,7 +83,7 @@ def calcular_pago_horas_extra(horas_extra, valor_hora, es_domingo_o_feriado):
 # ----------------------
 with st.form("form_horas_extra"):
     nombre_empleado = st.text_input("Ingrese su nombre")
-    sueldo_mensual = st.number_input("Ingrese su sueldo mensual (S/):", min_value= 0, step=100, format="%d")
+    sueldo_mensual = st.number_input("Ingrese su sueldo mensual (S/):", min_value=0,step=100,format="%d",value=None)
 
     anio = st.number_input("Ingrese el año:", min_value=2000, max_value=2100, value=datetime.today().year)
     mes = st.number_input("Ingrese el mes (1-12):", min_value=1, max_value=12, value=datetime.today().month)
