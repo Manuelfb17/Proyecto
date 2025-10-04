@@ -3,6 +3,20 @@ import pandas as pd
 from datetime import datetime, timedelta
 import calendar
 
+# ==============================
+# ICONO Y NOMBRE PARA IOS (PWA)
+# ==============================
+st.markdown("""
+<!-- Nombre que aparecerá en la pantalla de inicio del iPhone -->
+<meta name="apple-mobile-web-app-title" content="Horas Extra Marco">
+
+<!-- Icono que se usará en la pantalla de inicio -->
+<link rel="apple-touch-icon" sizes="180x180" href="https://www.marco.com.pe/wp-content/uploads/2021/01/marco-7.jpg">
+
+<!-- Permite que la app se abra en pantalla completa -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+""", unsafe_allow_html=True)
+
 # ----------------------
 # CONFIGURACIÓN DE LA PÁGINA
 # ----------------------
