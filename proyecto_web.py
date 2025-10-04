@@ -8,11 +8,7 @@ import os
 # ==============================
 # Configuración inicial de sesión
 # ==============================
-# Cargar historial desde archivo si existe
-if os.path.exists("registro_horas.json"):
-    with open("registro_horas.json", "r") as f:
-        st.session_state["registro_horas"] = json.load(f)
-else:
+if "registro_horas" not in st.session_state:
     st.session_state["registro_horas"] = {}
 
 # ==============================
@@ -37,33 +33,31 @@ st.set_page_config(
 # ==============================
 # ESTILOS: fondo dinámico difuminado
 # ==============================
-st.markdown(
-    """
-    <style>
-    .stApp {
-        background: 
-            linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 40%),
-            url('https://www.marco.com.pe/wp-content/uploads/2021/01/marco-7.jpg');
-        background-size: cover;
-        background-position: center;
-        background-attachment: fixed;
-    }
-    .contenido {
-        margin-top: 0px !important;
-        padding: 20px;
-        border-radius: 10px;
-        backdrop-filter: blur(8px);
-        background-color: rgba(255,255,255,0.2);
-    }
-    .block-container {
-        padding-top: 0rem;
-    }
-    .campo-datos {
-        margin-bottom: 20px;
-    }
-    </style>
-    """, unsafe_allow_html=True
-)
+st.markdown("""
+<style>
+.stApp {
+    background: 
+        linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 40%),
+        url('https://www.marco.com.pe/wp-content/uploads/2021/01/marco-7.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+.contenido {
+    margin-top: 0px !important;
+    padding: 20px;
+    border-radius: 10px;
+    backdrop-filter: blur(8px);
+    background-color: rgba(255,255,255,0.2);
+}
+.block-container {
+    padding-top: 0rem;
+}
+.campo-datos {
+    margin-bottom: 20px;
+}
+</style>
+""", unsafe_allow_html=True)
 
 # ==============================
 # CONTENIDO DE LA APP
@@ -78,9 +72,9 @@ with st.container():
         min_value=0,
         step=100,
         format="%d",
-        value=None
+        value=0
     )
-    fecha_seleccionada = st.date_input("Seleccione la fecha (día, mes y año)", value=None)
+    fecha_seleccionada = st.date_input("Seleccione la fecha (día, mes y año)")
 
     # ----------------------
     # BLOQUE HORAS EXTRA
@@ -89,7 +83,6 @@ with st.container():
         anio = fecha_seleccionada.year
         fecha_str = fecha_seleccionada.strftime("%Y-%m-%d")
 
-        # Calcular feriados automáticamente
         peru_feriados = holidays.Peru(years=anio)
         feriados = [fecha.strftime("%Y-%m-%d") for fecha in peru_feriados.keys()]
 
@@ -100,14 +93,8 @@ with st.container():
             min_value=0,
             step=1,
             format="%d",
-            value=st.session_state["registro_horas"].get(fecha_str, 0)
+            value=0  # Siempre empieza vacío
         )
-        # Guardar automáticamente en session_state
-        st.session_state["registro_horas"][fecha_str] = horas_extra
-
-        # Guardar historial en archivo
-        with open("registro_horas.json", "w") as f:
-            json.dump(st.session_state["registro_horas"], f)
 
     # ----------------------
     # BOTONES
@@ -117,14 +104,24 @@ with st.container():
     with col1:
         if st.button("Calcular Horas Extra"):
             if nombre_empleado and sueldo_mensual:
+                # Cargar historial previo
+                if os.path.exists("registro_horas.json"):
+                    with open("registro_horas.json", "r") as f:
+                        historial = json.load(f)
+                else:
+                    historial = {}
+
+                if fecha_seleccionada:
+                    historial[fecha_str] = horas_extra
+
                 valor_hora = round(sueldo_mensual / (8 * 5 * 4.33), 2)
                 registros = []
 
-                for fecha_str, horas in st.session_state["registro_horas"].items():
+                for fecha, horas in historial.items():
                     if horas:
-                        fecha = datetime.strptime(fecha_str, "%Y-%m-%d")
-                        dia_semana = fecha.weekday()
-                        es_domingo_o_feriado = (dia_semana == 5 or dia_semana == 6) or (fecha_str in feriados)
+                        fecha_dt = datetime.strptime(fecha, "%Y-%m-%d")
+                        dia_semana = fecha_dt.weekday()
+                        es_domingo_o_feriado = (dia_semana == 5 or dia_semana == 6) or (fecha in feriados)
 
                         if es_domingo_o_feriado:
                             pago = round(horas * valor_hora * 2, 2)
@@ -136,18 +133,20 @@ with st.container():
 
                         registros.append({
                             "Empleado": nombre_empleado,
-                            "Fecha": fecha_str,
+                            "Fecha": fecha,
                             "Horas Extra": horas,
                             "Pago Extra (S/)": pago
                         })
+
+                # Guardar historial actualizado
+                with open("registro_horas.json", "w") as f:
+                    json.dump(historial, f)
 
                 if registros:
                     df = pd.DataFrame(registros)
                     st.subheader("📊 Reporte de Horas Extra")
                     st.dataframe(df)
                     st.write("💰 **Total de horas extra (S/):**", df["Pago Extra (S/)"].sum())
-
-                    # Guardar Excel con columnas independientes
                     df.to_excel("HorasExtra_Mes_Reporte.xlsx", index=False)
                     st.success("Reporte guardado como 'HorasExtra_Mes_Reporte.xlsx'")
                 else:
@@ -157,8 +156,7 @@ with st.container():
 
     with col2:
         if st.button("🧹 Limpiar Hrs Ext."):
-            st.session_state["registro_horas"].clear()
-            # Borrar archivo también
             if os.path.exists("registro_horas.json"):
                 os.remove("registro_horas.json")
+            st.session_state["registro_horas"].clear()
             st.success("✅ Historial de horas extra limpiado.")
