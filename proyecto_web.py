@@ -1,8 +1,8 @@
+
 import streamlit as st
 import pandas as pd
 from datetime import datetime
 import holidays
-from io import BytesIO
 
 # ==============================
 # Configuración inicial de sesión
@@ -30,12 +30,12 @@ st.set_page_config(
 )
 
 # ==============================
-# ESTILOS: fondo dinámico y blur en contenedor
+# ESTILOS: fondo dinámico difuminado
 # ==============================
 st.markdown(
     """
     <style>
-    /* Fondo dinámico con degradado en la parte superior */
+    /* Fondo dinámico con overlay degradado */
     .stApp {
         background: 
             linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 40%),
@@ -45,18 +45,11 @@ st.markdown(
         background-attachment: fixed;
     }
 
-    /* Contenedor principal con blur solo del fondo */
+    /* Contenedor principal */
     .contenido {
-        margin-top: 0px !important;  /* Pegado al inicio */
+        margin-top: 20px;
         padding: 20px;
         border-radius: 10px;
-        backdrop-filter: blur(8px);
-        background-color: rgba(255,255,255,0.2);
-    }
-
-    /* Quitar padding/margen extra de Streamlit */
-    .block-container {
-        padding-top: 0rem;
     }
 
     /* Separación de campos */
@@ -73,7 +66,9 @@ st.markdown(
 with st.container():
     st.markdown('<div class="contenido"></div>', unsafe_allow_html=True)
 
+    # ----------------------
     # BLOQUE DE DATOS GENERALES
+    # ----------------------
     st.subheader("REGISTRO DE HORAS EXTRA")
     nombre_empleado = st.text_input("Ingrese su nombre", value="")
     sueldo_mensual = st.number_input(
@@ -85,9 +80,13 @@ with st.container():
     )
     fecha_seleccionada = st.date_input("Seleccione la fecha (día, mes y año)", value=None)
 
+    # ----------------------
     # BLOQUE HORAS EXTRA
+    # ----------------------
     if fecha_seleccionada:
         anio = fecha_seleccionada.year
+        mes = fecha_seleccionada.month
+        dia = fecha_seleccionada.day
         fecha_str = fecha_seleccionada.strftime("%Y-%m-%d")
 
         # Calcular feriados automáticamente
@@ -106,7 +105,9 @@ with st.container():
         # Guardar automáticamente en session_state
         st.session_state["registro_horas"][fecha_str] = horas_extra
 
+    # ----------------------
     # BOTÓN CALCULAR Y TABLA
+    # ----------------------
     if st.button("Calcular Horas Extra"):
         if nombre_empleado and sueldo_mensual:
             valor_hora = round(sueldo_mensual / (8 * 5 * 4.33), 2)
@@ -139,20 +140,8 @@ with st.container():
                 st.subheader("📊 Reporte de Horas Extra")
                 st.dataframe(df)
                 st.write("💰 **Total de horas extra (S/):**", df["Pago Extra (S/)"].sum())
-                
-                # Guardar Excel en memoria
-                output = BytesIO()
-                with pd.ExcelWriter(output, engine='openpyxl') as writer:
-                    df.to_excel(writer, index=False, sheet_name="Horas Extra")
-                processed_data = output.getvalue()
-
-                # Botón de descarga
-                st.download_button(
-                    label="📥 Descargar Excel",
-                    data=processed_data,
-                    file_name="HorasExtra_Mes_Reporte.xlsx",
-                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                )
+                df.to_excel("HorasExtra_Mes_Reporte.xlsx", index=False)
+                st.success("Reporte guardado como 'HorasExtra_Mes_Reporte.xlsx'")
             else:
                 st.info("No se ingresaron horas extra.")
         else:
