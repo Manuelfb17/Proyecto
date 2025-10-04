@@ -29,7 +29,7 @@ st.set_page_config(
 )
 
 # ==============================
-# ESTILOS: fondo dinámico + header fijo
+# ESTILOS: fondo dinámico
 # ==============================
 st.markdown(
     """
@@ -42,24 +42,19 @@ st.markdown(
         background-attachment: fixed;
     }
 
-    /* Header fijo con fondo blanco */
+    /* Header transparente */
     .header {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
-        height: 80px;
-        background-color: white;
-        display: flex;
-        align-items: center;
-        padding-left: 20px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        height: 0px; /* altura 0 para que no ocupe espacio */
         z-index: 9999;
     }
 
     /* Contenedor de la app debajo del header */
     .contenido {
-        margin-top: 100px;
+        margin-top: 20px; /* ya no hace falta separar por header blanco */
         padding: 20px;
         background-color: rgba(255,255,255,0.9);
         border-radius: 10px;
@@ -70,7 +65,7 @@ st.markdown(
     }
     </style>
 
-    <!-- Header fijo (sin logo) -->
+    <!-- Header transparente -->
     <div class="header"></div>
 """, unsafe_allow_html=True)
 
