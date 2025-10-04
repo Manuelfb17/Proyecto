@@ -4,9 +4,9 @@ from datetime import datetime
 import calendar
 import holidays
 
-# ------------------------------
+# ==============================
 # Configuración inicial de sesión
-# ------------------------------
+# ==============================
 if "registro_horas" not in st.session_state:
     st.session_state["registro_horas"] = {}  # Guarda todas las horas ingresadas
 
@@ -20,7 +20,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ----------------------
-# Configuración de página
+# CONFIGURACIÓN DE LA PÁGINA
 # ----------------------
 st.set_page_config(
     page_title="Registro de Horas Extra",
@@ -29,56 +29,80 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-st.title("Registro de Horas Extra")
-st.write("Complete los datos para calcular el pago de sus horas extra.")
-
 # ----------------------
-# Datos generales
+# BANNER SUPERIOR
 # ----------------------
-nombre_empleado = st.text_input("Ingrese su nombre", value="")
-sueldo_mensual = st.number_input(
-    "Ingrese su sueldo mensual (S/):",
-    min_value=0,
-    step=100,
-    format="%d",
-    value=None
+st.markdown(
+    """
+    <style>
+    .banner {
+        width: 100%;
+        overflow: hidden;
+        background-color: white;
+        box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
+        margin-bottom: 25px;
+    }
+    .banner img {
+        width: 100%;
+        height: 300px;
+        object-fit: cover;
+        display: block;
+    }
+    .campo-datos {
+        margin-bottom: 20px;
+    }
+    </style>
+    <div class="banner">
+        <img src="https://i.postimg.cc/7PjfgKkz/marco-peruana.png" alt="Marco Peru Banner">
+    </div>
+    """,
+    unsafe_allow_html=True
 )
 
 # ----------------------
-# Selector mes/año
+# BLOQUE DE DATOS GENERALES
 # ----------------------
-fecha_seleccionada = st.date_input("Seleccione mes y año:", value=None)
+st.subheader("Datos del empleado")
+with st.container():
+    st.markdown("<div class='campo-datos'></div>", unsafe_allow_html=True)
+    nombre_empleado = st.text_input("Nombre del empleado", value="")
+    sueldo_mensual = st.number_input(
+        "Sueldo mensual (S/):",
+        min_value=0,
+        step=100,
+        format="%d",
+        value=None
+    )
+    fecha_seleccionada = st.date_input("Seleccione la fecha (día, mes y año)", value=None)
+
+# ----------------------
+# BLOQUE HORAS EXTRA
+# ----------------------
 if fecha_seleccionada:
     anio = fecha_seleccionada.year
     mes = fecha_seleccionada.month
+    dia = fecha_seleccionada.day
+    fecha_str = fecha_seleccionada.strftime("%Y-%m-%d")
 
-    # Ferias automáticamente
+    # Calcular feriados automáticamente
     peru_feriados = holidays.Peru(years=anio)
     feriados = [fecha.strftime("%Y-%m-%d") for fecha in peru_feriados.keys()]
 
-    # Selector de día del mes
-    num_dias = calendar.monthrange(anio, mes)[1]
-    dia = st.selectbox(
-        "Seleccione el día:",
-        options=[i for i in range(1, num_dias+1)]
-    )
-
-    fecha_str = datetime(anio, mes, dia).strftime("%Y-%m-%d")
-
-    # Input para las horas extra del día seleccionado
-    horas_extra = st.number_input(
-        f"Ingrese horas extra para {fecha_str}:",
-        min_value=0,
-        step=1,
-        format="%d",
-        value=st.session_state["registro_horas"].get(fecha_str, None)
-    )
-
-    # Guardar automáticamente en session_state
-    st.session_state["registro_horas"][fecha_str] = horas_extra
+    st.subheader("Horas Extra del día seleccionado")
+    with st.container():
+        st.markdown("<div class='campo-datos'></div>", unsafe_allow_html=True)
+        horas_extra = st.number_input(
+            f"Horas extra para {fecha_str}:",
+            min_value=0,
+            step=1,
+            format="%d",
+            value=st.session_state["registro_horas"].get(fecha_str, None)
+        )
+        # Guardar automáticamente en session_state
+        st.session_state["registro_horas"][fecha_str] = horas_extra
 
 # ----------------------
-# Calcular total
+# BOTÓN CALCULAR Y TABLA
 # ----------------------
 if st.button("Calcular Horas Extra"):
     if nombre_empleado and sueldo_mensual:
