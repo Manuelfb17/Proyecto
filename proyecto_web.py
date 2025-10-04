@@ -78,10 +78,10 @@ def calcular_pago_horas_extra(horas_extra, valor_hora, es_domingo_o_feriado):
 # FORMULARIO PRINCIPAL
 # ----------------------
 with st.form("form_horas_extra"):
-    # Campos de texto vacíos por defecto
+    # Nombre del empleado
     nombre_empleado = st.text_input("Ingrese su nombre", value="")
 
-    # Sueldo mensual vacío al inicio y solo enteros
+    # Sueldo mensual
     sueldo_mensual = st.number_input(
         "Ingrese su sueldo mensual (S/):",
         min_value=0,
@@ -90,26 +90,38 @@ with st.form("form_horas_extra"):
         value=None
     )
 
-    anio = st.number_input("Ingrese el año (YYYY):", min_value=2000, max_value=2100, value=None, format="%d")
-    mes = st.number_input("Ingrese el mes (1-12):", min_value=1, max_value=12, value=None, format="%d")
+    # Selector de fecha (solo para obtener mes y año)
+    fecha_seleccionada = st.date_input(
+        "Seleccione el mes y año:",
+        value=None
+    )
+    if fecha_seleccionada:
+        anio = fecha_seleccionada.year
+        mes = fecha_seleccionada.month
+    else:
+        anio = None
+        mes = None
 
     st.markdown("---")
     st.subheader("Ingrese las horas extra de cada día:")
 
-    num_dias = calendar.monthrange(datetime.today().year, datetime.today().month)[1]
-    horas_dict = {}
-
-    for dia in range(1, num_dias + 1):
-        fecha = datetime(datetime.today().year, datetime.today().month, dia)
-        fecha_str = fecha.strftime("%Y-%m-%d")
-        horas_dict[fecha_str] = st.number_input(
-            f"{fecha_str} - Horas extra:",
-            min_value=0,
-            step=1,
-            format="%d",
-            value=None,
-            key=fecha_str
-        )
+    # Generamos días del mes seleccionado
+    if anio and mes:
+        num_dias = calendar.monthrange(anio, mes)[1]
+        horas_dict = {}
+        for dia in range(1, num_dias + 1):
+            fecha = datetime(anio, mes, dia)
+            fecha_str = fecha.strftime("%Y-%m-%d")
+            horas_dict[fecha_str] = st.number_input(
+                f"{fecha_str} - Horas extra:",
+                min_value=0,
+                step=1,
+                format="%d",
+                value=None,
+                key=fecha_str
+            )
+    else:
+        horas_dict = {}
 
     submitted = st.form_submit_button("Calcular Horas Extra")
 
@@ -118,8 +130,7 @@ with st.form("form_horas_extra"):
 # ----------------------
 if submitted:
     if nombre_empleado and sueldo_mensual and anio and mes:
-        # Valor de la hora basado en 8 horas diarias, 5 días por semana, 4.33 semanas promedio por mes
-        valor_hora = round(sueldo_mensual / (8 * 5 * 4.33), 2)
+        valor_hora = round(sueldo_mensual / (8 * 5 * 4.33), 2)  # 8h diarias, 5 días por semana, 4.33 semanas promedio
 
         registros = []
         for fecha_str, horas_extra in horas_dict.items():
