@@ -29,12 +29,12 @@ st.set_page_config(
 )
 
 # ==============================
-# ESTILOS: fondo dinámico difuminado
+# ESTILOS: fondo desenfocado
 # ==============================
 st.markdown(
     """
     <style>
-    /* Fondo dinámico con overlay degradado */
+    /* Fondo desenfocado */
     .stApp {
         background: 
             linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 40%),
@@ -42,6 +42,7 @@ st.markdown(
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
+        filter: blur(4px);  /* <-- Ajusta el valor para más o menos desenfoque */
     }
 
     /* Contenedor principal */
@@ -49,6 +50,9 @@ st.markdown(
         margin-top: 20px;
         padding: 20px;
         border-radius: 10px;
+        background-color: rgba(255,255,255,0.85); /* Fondo semitransparente para mejorar legibilidad */
+        position: relative;
+        z-index: 1;
     }
 
     /* Separación de campos */
@@ -65,9 +69,7 @@ st.markdown(
 with st.container():
     st.markdown('<div class="contenido"></div>', unsafe_allow_html=True)
 
-    # ----------------------
     # BLOQUE DE DATOS GENERALES
-    # ----------------------
     st.subheader("REGISTRO DE HORAS EXTRA")
     nombre_empleado = st.text_input("Ingrese su nombre", value="")
     sueldo_mensual = st.number_input(
@@ -79,20 +81,17 @@ with st.container():
     )
     fecha_seleccionada = st.date_input("Seleccione la fecha (día, mes y año)", value=None)
 
-    # ----------------------
     # BLOQUE HORAS EXTRA
-    # ----------------------
     if fecha_seleccionada:
         anio = fecha_seleccionada.year
         mes = fecha_seleccionada.month
         dia = fecha_seleccionada.day
         fecha_str = fecha_seleccionada.strftime("%Y-%m-%d")
 
-        # Calcular feriados automáticamente
         peru_feriados = holidays.Peru(years=anio)
         feriados = [fecha.strftime("%Y-%m-%d") for fecha in peru_feriados.keys()]
 
-        st.markdown("<br><br>", unsafe_allow_html=True)  # separación visual
+        st.markdown("<br><br>", unsafe_allow_html=True)
         st.subheader(f"Ingrese las horas extra para {fecha_str}")
         horas_extra = st.number_input(
             f"Horas extra del día seleccionado:",
@@ -101,12 +100,9 @@ with st.container():
             format="%d",
             value=st.session_state["registro_horas"].get(fecha_str, None)
         )
-        # Guardar automáticamente en session_state
         st.session_state["registro_horas"][fecha_str] = horas_extra
 
-    # ----------------------
     # BOTÓN CALCULAR Y TABLA
-    # ----------------------
     if st.button("Calcular Horas Extra"):
         if nombre_empleado and sueldo_mensual:
             valor_hora = round(sueldo_mensual / (8 * 5 * 4.33), 2)
@@ -115,10 +111,9 @@ with st.container():
             for fecha_str, horas in st.session_state["registro_horas"].items():
                 if horas:
                     fecha = datetime.strptime(fecha_str, "%Y-%m-%d")
-                    dia_semana = fecha.weekday()  # 0=lunes, 6=domingo
+                    dia_semana = fecha.weekday()
                     es_domingo_o_feriado = (dia_semana == 5 or dia_semana == 6) or (fecha_str in feriados)
 
-                    # Lógica de horas extra
                     if es_domingo_o_feriado:
                         pago = round(horas * valor_hora * 2, 2)
                     else:
