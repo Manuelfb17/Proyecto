@@ -3,3 +3,5 @@ pandas
 openpyxl
 xlsxwriter
 holidays
+gspread
+google-auth
