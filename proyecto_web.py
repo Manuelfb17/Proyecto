@@ -145,9 +145,12 @@ with st.container():
                 st.dataframe(df)
                 st.write("💰 **Total de horas extra (S/):**", df["Pago Extra (S/)"].sum())
                 
-                # Guardar Excel con columnas independientes
-                df.to_excel("HorasExtra_Mes_Reporte.xlsx", index=False)
-                st.success("Reporte guardado como 'HorasExtra_Mes_Reporte.xlsx'")
+                # ----------------------
+                # Guardar Excel correctamente
+                # ----------------------
+                archivo_excel = "HorasExtra_Mes_Reporte.xlsx"
+                df.to_excel(archivo_excel, index=False, engine='openpyxl')
+                st.success(f"Reporte guardado como '{archivo_excel}'")
             else:
                 st.info("No se ingresaron horas extra.")
         else:
