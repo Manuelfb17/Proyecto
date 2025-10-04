@@ -14,28 +14,31 @@ st.set_page_config(
 )
 
 # ----------------------
-# BANNER SUPERIOR DESPLAZABLE
+# BANNER SUPERIOR FIJO (imagen a todo el ancho)
 # ----------------------
 st.markdown(
     """
     <style>
-    .banner-scroll {
+    .banner-fixed {
+        position: fixed;
+        top: 0;
+        left: 0;
         width: 100%;
+        z-index: 999;
         overflow: hidden;
         background-color: white;
         box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
     }
-    .banner-scroll img {
+    .banner-fixed img {
         width: 100%;
-        height: 260px;     /* altura del banner */
-        object-fit: cover;
-        object-position: center 30%; /* mueve el foco hacia abajo mostrando más la parte inferior */
+        height: 300px;   /* altura aumentada */
+        object-fit: cover; /* cubre todo el ancho */
     }
     .content {
-        margin-top: 20px;  /* pequeño espacio debajo del banner */
+        margin-top: 310px;  /* espacio debajo del banner */
     }
     </style>
-    <div class="banner-scroll">
+    <div class="banner-fixed">
         <img src="https://www.marco.com.pe/wp-content/uploads/2021/01/marco-7.jpg" alt="Marco Peru Banner">
     </div>
     <div class="content">
