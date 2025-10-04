@@ -1,8 +1,10 @@
-
 import streamlit as st
 import pandas as pd
 from datetime import datetime
 import holidays
+from openpyxl import Workbook
+from openpyxl.utils.dataframe import dataframe_to_rows
+from openpyxl.styles import Font
 
 # ==============================
 # Configuración inicial de sesión
@@ -30,29 +32,28 @@ st.set_page_config(
 )
 
 # ==============================
-# ESTILOS: fondo dinámico difuminado
+# ESTILOS: fondo dinámico y contenedor con leve blur
 # ==============================
 st.markdown(
     """
     <style>
-    /* Fondo dinámico con overlay degradado */
+    /* Fondo dinámico */
     .stApp {
-        background: 
-            linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 40%),
-            url('https://www.marco.com.pe/wp-content/uploads/2021/01/marco-7.jpg');
+        background: url('https://www.marco.com.pe/wp-content/uploads/2021/01/marco-7.jpg');
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
     }
 
-    /* Contenedor principal */
+    /* Contenedor principal con blur leve al fondo */
     .contenido {
         margin-top: 20px;
         padding: 20px;
         border-radius: 10px;
+        backdrop-filter: blur(8px); /* desenfoque solo del fondo */
+        background-color: rgba(255,255,255,0.2); /* semi-transparente para ver fondo */
     }
 
-    /* Separación de campos */
     .campo-datos {
         margin-bottom: 20px;
     }
@@ -66,9 +67,7 @@ st.markdown(
 with st.container():
     st.markdown('<div class="contenido"></div>', unsafe_allow_html=True)
 
-    # ----------------------
     # BLOQUE DE DATOS GENERALES
-    # ----------------------
     st.subheader("REGISTRO DE HORAS EXTRA")
     nombre_empleado = st.text_input("Ingrese su nombre", value="")
     sueldo_mensual = st.number_input(
@@ -80,20 +79,13 @@ with st.container():
     )
     fecha_seleccionada = st.date_input("Seleccione la fecha (día, mes y año)", value=None)
 
-    # ----------------------
     # BLOQUE HORAS EXTRA
-    # ----------------------
     if fecha_seleccionada:
-        anio = fecha_seleccionada.year
-        mes = fecha_seleccionada.month
-        dia = fecha_seleccionada.day
         fecha_str = fecha_seleccionada.strftime("%Y-%m-%d")
-
-        # Calcular feriados automáticamente
-        peru_feriados = holidays.Peru(years=anio)
+        peru_feriados = holidays.Peru(years=fecha_seleccionada.year)
         feriados = [fecha.strftime("%Y-%m-%d") for fecha in peru_feriados.keys()]
 
-        st.markdown("<br><br>", unsafe_allow_html=True)  # separación visual
+        st.markdown("<br><br>", unsafe_allow_html=True)
         st.subheader(f"Ingrese las horas extra para {fecha_str}")
         horas_extra = st.number_input(
             f"Horas extra del día seleccionado:",
@@ -102,12 +94,9 @@ with st.container():
             format="%d",
             value=st.session_state["registro_horas"].get(fecha_str, None)
         )
-        # Guardar automáticamente en session_state
         st.session_state["registro_horas"][fecha_str] = horas_extra
 
-    # ----------------------
     # BOTÓN CALCULAR Y TABLA
-    # ----------------------
     if st.button("Calcular Horas Extra"):
         if nombre_empleado and sueldo_mensual:
             valor_hora = round(sueldo_mensual / (8 * 5 * 4.33), 2)
@@ -119,7 +108,6 @@ with st.container():
                     dia_semana = fecha.weekday()  # 0=lunes, 6=domingo
                     es_domingo_o_feriado = (dia_semana == 5 or dia_semana == 6) or (fecha_str in feriados)
 
-                    # Lógica de horas extra
                     if es_domingo_o_feriado:
                         pago = round(horas * valor_hora * 2, 2)
                     else:
@@ -140,7 +128,32 @@ with st.container():
                 st.subheader("📊 Reporte de Horas Extra")
                 st.dataframe(df)
                 st.write("💰 **Total de horas extra (S/):**", df["Pago Extra (S/)"].sum())
-                df.to_excel("HorasExtra_Mes_Reporte.xlsx", index=False)
+
+                # Guardar Excel con columnas independientes y formateadas
+                wb = Workbook()
+                ws = wb.active
+                ws.title = "Horas Extra"
+
+                # Encabezados en negrita
+                for col_num, column_title in enumerate(df.columns, 1):
+                    cell = ws.cell(row=1, column=col_num, value=column_title)
+                    cell.font = Font(bold=True)
+
+                # Datos
+                for r_idx, row in enumerate(dataframe_to_rows(df, index=False, header=False), 2):
+                    for c_idx, value in enumerate(row, 1):
+                        ws.cell(row=r_idx, column=c_idx, value=value)
+
+                # Ajuste ancho columnas
+                for col in ws.columns:
+                    max_length = 0
+                    column = col[0].column_letter
+                    for cell in col:
+                        if cell.value:
+                            max_length = max(max_length, len(str(cell.value)))
+                    ws.column_dimensions[column].width = max_length + 2
+
+                wb.save("HorasExtra_Mes_Reporte.xlsx")
                 st.success("Reporte guardado como 'HorasExtra_Mes_Reporte.xlsx'")
             else:
                 st.info("No se ingresaron horas extra.")
