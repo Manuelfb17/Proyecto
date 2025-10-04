@@ -66,6 +66,7 @@ with st.container():
     st.markdown('<div class="contenido"></div>', unsafe_allow_html=True)
 
     st.subheader("REGISTRO DE HORAS EXTRA")
+    
     nombre_empleado = st.text_input("Ingrese su nombre", value="")
     sueldo_mensual = st.number_input(
         "Ingrese su sueldo mensual (S/):",
@@ -75,6 +76,15 @@ with st.container():
         value=0
     )
     fecha_seleccionada = st.date_input("Seleccione la fecha (día, mes y año)")
+
+    # ----------------------
+    # Cargar historial desde JSON (si existe)
+    # ----------------------
+    historial = {}
+    if os.path.exists("registro_horas.json"):
+        with open("registro_horas.json", "r") as f:
+            historial = json.load(f)
+        st.session_state["registro_horas"] = historial
 
     # ----------------------
     # BLOQUE HORAS EXTRA
@@ -104,13 +114,6 @@ with st.container():
     with col1:
         if st.button("Calcular Horas Extra"):
             if nombre_empleado and sueldo_mensual:
-                # Cargar historial previo
-                if os.path.exists("registro_horas.json"):
-                    with open("registro_horas.json", "r") as f:
-                        historial = json.load(f)
-                else:
-                    historial = {}
-
                 if fecha_seleccionada:
                     historial[fecha_str] = horas_extra
 
