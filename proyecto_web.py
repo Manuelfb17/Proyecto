@@ -29,30 +29,30 @@ st.set_page_config(
 )
 
 # ==============================
-# ESTILOS: fondo desenfocado
+# ESTILOS: desenfoque solo detrás del contenido
 # ==============================
 st.markdown(
     """
     <style>
-    /* Fondo desenfocado */
+    /* Fondo de toda la app */
     .stApp {
-        background: 
-            linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 40%),
-            url('https://www.marco.com.pe/wp-content/uploads/2021/01/marco-7.jpg');
+        background: url('https://www.marco.com.pe/wp-content/uploads/2021/01/marco-7.jpg');
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
-        filter: blur(4px);  /* <-- Ajusta el valor para más o menos desenfoque */
+        position: relative;
     }
 
-    /* Contenedor principal */
+    /* Contenedor principal con desenfoque detrás */
     .contenido {
         margin-top: 20px;
         padding: 20px;
         border-radius: 10px;
-        background-color: rgba(255,255,255,0.85); /* Fondo semitransparente para mejorar legibilidad */
         position: relative;
         z-index: 1;
+        background-color: rgba(255,255,255,0.25); /* Fondo semitransparente */
+        backdrop-filter: blur(6px); /* <-- Desenfoca solo lo que está detrás del contenedor */
+        -webkit-backdrop-filter: blur(6px);
     }
 
     /* Separación de campos */
