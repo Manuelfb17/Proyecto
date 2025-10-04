@@ -85,7 +85,7 @@ with st.form("form_horas_extra"):
     nombre_empleado = st.text_input("Ingrese su nombre")
     sueldo_mensual = st.number_input("Ingrese su sueldo mensual (S/):", min_value=0.0, step=10.0)
 
-    anio = st.number_input("Ingrese el año):", min_value=2000, max_value=2100, value=datetime.today().year)
+    anio = st.number_input("Ingrese el año:", min_value=2000, max_value=2100, value=datetime.today().year)
     mes = st.number_input("Ingrese el mes (1-12):", min_value=1, max_value=12, value=datetime.today().month)
 
     st.markdown("---")
