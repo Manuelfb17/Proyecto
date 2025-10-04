@@ -29,48 +29,49 @@ st.set_page_config(
 )
 
 # ==============================
-# ESTILOS: Fondo dinámico que se difumina con scroll
+# ESTILOS: fondo dinámico difuminado
 # ==============================
-st.markdown("""
-<style>
-/* Fondo dinámico con overlay para difuminar al bajar */
-.stApp {
-    position: relative;
-    background: url('https://www.marco.com.pe/wp-content/uploads/2021/01/marco-7.jpg');
-    background-size: cover;
-    background-attachment: fixed;
-    background-position: center;
-}
+st.markdown(
+    """
+    <style>
+    /* Fondo dinámico */
+    .stApp {
+        background-image: url('https://www.marco.com.pe/wp-content/uploads/2021/01/marco-7.jpg');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    }
 
-/* Overlay fijo que simula el difuminado dinámico */
-.stApp::before {
-    content: "";
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(to bottom, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 40%, rgba(255,255,255,0.8) 100%);
-    pointer-events: none;
-    z-index: 0;
-}
+    /* Overlay difuminado que varía conforme se baja */
+    .stApp::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 50%, rgba(255,255,255,0.6) 100%);
+        pointer-events: none;
+        z-index: 0;
+    }
 
-/* Contenedor principal */
-.contenido {
-    position: relative;
-    z-index: 1;
-    margin-top: 20px;
-    padding: 20px;
-    border-radius: 10px;
-    background-color: rgba(255,255,255,0.85);
-}
+    /* Contenedor principal */
+    .contenido {
+        position: relative;
+        z-index: 1;  /* Contenido encima del overlay */
+        margin-top: 20px;
+        padding: 20px;
+        border-radius: 10px;
+        background-color: rgba(255,255,255,0.85);
+    }
 
-/* Separación de campos */
-.campo-datos {
-    margin-bottom: 20px;
-}
-</style>
-""", unsafe_allow_html=True)
+    /* Separación de campos */
+    .campo-datos {
+        margin-bottom: 20px;
+    }
+    </style>
+    """, unsafe_allow_html=True
+)
 
 # ==============================
 # CONTENIDO DE LA APP
