@@ -42,7 +42,7 @@ st.markdown(
     }
     .banner img {
         width: 100%;
-        height: 300px;   /* altura ajustada */
+        height: 300px;
         object-fit: cover;
         display: block;
     }
@@ -69,20 +69,6 @@ feriados = [
 # ----------------------
 # FUNCIONES
 # ----------------------
-def convertir_hora_simple(hora_simple):
-    hora_simple = hora_simple.strip().lower()
-    if "am" in hora_simple:
-        hora = int(hora_simple.replace("am", ""))
-        if hora == 12:
-            hora = 0
-    elif "pm" in hora_simple:
-        hora = int(hora_simple.replace("pm", ""))
-        if hora != 12:
-            hora += 12
-    else:
-        hora = int(hora_simple)
-    return f"{hora:02d}:00"
-
 def calcular_pago_horas_extra(horas_extra, valor_hora, es_domingo_o_feriado):
     if es_domingo_o_feriado:
         return round(horas_extra * valor_hora * 2, 2)
@@ -99,8 +85,6 @@ def calcular_pago_horas_extra(horas_extra, valor_hora, es_domingo_o_feriado):
 with st.form("form_horas_extra"):
     nombre_empleado = st.text_input("Ingrese su nombre")
     sueldo_mensual = st.number_input("Ingrese su sueldo mensual (S/):", min_value=0.0, step=10.0)
-    entrada_normal = st.text_input("Ingrese hora de entrada (ej: 8am, 10pm)")
-    salida_normal = st.text_input("Ingrese hora de salida (ej: 5pm, 10pm)")
 
     anio = st.number_input("Ingrese el año (YYYY):", min_value=2000, max_value=2100, value=datetime.today().year)
     mes = st.number_input("Ingrese el mes (1-12):", min_value=1, max_value=12, value=datetime.today().month)
@@ -122,20 +106,15 @@ with st.form("form_horas_extra"):
 # PROCESAMIENTO
 # ----------------------
 if submitted:
-    if nombre_empleado and sueldo_mensual > 0 and entrada_normal and salida_normal:
-        hora_entrada = datetime.strptime(convertir_hora_simple(entrada_normal), "%H:%M")
-        hora_salida = datetime.strptime(convertir_hora_simple(salida_normal), "%H:%M")
-        if hora_salida < hora_entrada:
-            hora_salida += timedelta(days=1)
-
-        duracion_jornada = (hora_salida - hora_entrada).seconds / 3600
-        valor_hora = round(sueldo_mensual / (duracion_jornada * 5 * 4.33), 2)
+    if nombre_empleado and sueldo_mensual > 0:
+        # Valor de la hora basado en 8 horas diarias, 5 días por semana, 4.33 semanas promedio por mes
+        valor_hora = round(sueldo_mensual / (8 * 5 * 4.33), 2)
 
         registros = []
         for fecha_str, horas_extra in horas_dict.items():
             fecha = datetime.strptime(fecha_str, "%Y-%m-%d")
             dia_semana = fecha.weekday()
-            es_domingo_o_feriado = (dia_semana == 6) or (fecha_str in feriados)
+            es_domingo_o_feriado = (dia_semana >= 5) or (fecha_str in feriados)  # sábado/domingo o feriado
 
             if horas_extra > 0:
                 pago = calcular_pago_horas_extra(horas_extra, valor_hora, es_domingo_o_feriado)
