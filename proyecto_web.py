@@ -81,6 +81,12 @@ st.markdown(
     .campo-datos {
         margin-bottom: 20px;
     }
+
+    /* 🔹 Quitar la línea superior del subheader */
+    h3 {
+        border-top: none !important;
+        margin-top: 0 !important;
+    }
     </style>
     """, unsafe_allow_html=True
 )
