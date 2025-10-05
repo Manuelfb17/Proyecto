@@ -70,7 +70,7 @@ st.markdown(
     /* Ajustes para móviles medianos y tablets */
     @media (max-width: 300x) {
         .stApp {
-            background-size: 50% 50%; /* Fondo ocupa todo ancho y alto */
+            background-size: 10% 10%; /* Fondo ocupa todo ancho y alto */
         }
         .contenido {
             margin-top: 5vh;
