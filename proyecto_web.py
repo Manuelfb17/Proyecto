@@ -3,6 +3,18 @@ import pandas as pd
 from datetime import datetime
 import holidays
 from io import BytesIO
+import locale
+
+# ==============================
+# Configuración regional (idioma español)
+# ==============================
+try:
+    locale.setlocale(locale.LC_TIME, "es_ES.UTF-8")  # Para sistemas Unix/Mac/Linux
+except:
+    try:
+        locale.setlocale(locale.LC_TIME, "Spanish_Spain")  # Para Windows
+    except:
+        pass
 
 # ==============================
 # Configuración inicial de sesión
@@ -67,6 +79,10 @@ st.markdown(
     .campo-datos {
         margin-bottom: 20px;
     }
+
+    /* Traducir calendario al español */
+    .stDateInput [aria-label="Previous month"]::after { content: "← Mes anterior"; }
+    .stDateInput [aria-label="Next month"]::after { content: "Mes siguiente →"; }
     </style>
     """, unsafe_allow_html=True
 )
