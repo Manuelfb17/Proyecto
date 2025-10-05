@@ -9,10 +9,10 @@ import locale
 # Configuración regional (idioma español)
 # ==============================
 try:
-    locale.setlocale(locale.LC_TIME, "es_ES.UTF-8")  # Para sistemas Unix/Mac/Linux
+    locale.setlocale(locale.LC_TIME, "es_ES.UTF-8")
 except:
     try:
-        locale.setlocale(locale.LC_TIME, "Spanish_Spain")  # Para Windows
+        locale.setlocale(locale.LC_TIME, "Spanish_Spain")
     except:
         pass
 
@@ -20,7 +20,7 @@ except:
 # Configuración inicial de sesión
 # ==============================
 if "registro_horas" not in st.session_state:
-    st.session_state["registro_horas"] = {}  # Guarda todas las horas ingresadas
+    st.session_state["registro_horas"] = {}
 if "ultima_fecha" not in st.session_state:
     st.session_state["ultima_fecha"] = None
 if "ultima_hora" not in st.session_state:
@@ -46,12 +46,11 @@ st.set_page_config(
 )
 
 # ==============================
-# ESTILOS: fondo dinámico y contenedor difuminado
+# ESTILOS: fondo dinámico, contenedor difuminado y calendario en español
 # ==============================
 st.markdown(
     """
     <style>
-    /* Fondo dinámico */
     .stApp {
         background: 
             linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 40%),
@@ -61,7 +60,6 @@ st.markdown(
         background-attachment: fixed;
     }
 
-    /* Contenedor principal con blur */
     .contenido {
         margin-top: 0px !important;
         padding: 20px;
@@ -70,21 +68,31 @@ st.markdown(
         background-color: rgba(255,255,255,0.2);
     }
 
-    /* Quitar padding extra de Streamlit */
     .block-container {
         padding-top: 0rem;
     }
 
-    /* Separación de campos */
     .campo-datos {
         margin-bottom: 20px;
     }
-
-    /* Traducir calendario al español */
-    .stDateInput [aria-label="Previous month"]::after { content: "← Mes anterior"; }
-    .stDateInput [aria-label="Next month"]::after { content: "Mes siguiente →"; }
     </style>
-    """, unsafe_allow_html=True
+
+    <script>
+    // Traducir los días abreviados del calendario al español
+    const observer = new MutationObserver(() => {
+        document.querySelectorAll('abbr[title="Monday"]').forEach(e => e.textContent = 'Lun');
+        document.querySelectorAll('abbr[title="Tuesday"]').forEach(e => e.textContent = 'Mar');
+        document.querySelectorAll('abbr[title="Wednesday"]').forEach(e => e.textContent = 'Mié');
+        document.querySelectorAll('abbr[title="Thursday"]').forEach(e => e.textContent = 'Jue');
+        document.querySelectorAll('abbr[title="Friday"]').forEach(e => e.textContent = 'Vie');
+        document.querySelectorAll('abbr[title="Saturday"]').forEach(e => e.textContent = 'Sáb');
+        document.querySelectorAll('abbr[title="Sunday"]').forEach(e => e.textContent = 'Dom');
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+    </script>
+    """,
+    unsafe_allow_html=True
 )
 
 # ==============================
@@ -93,38 +101,29 @@ st.markdown(
 with st.container():
     st.markdown('<div class="contenido"></div>', unsafe_allow_html=True)
 
-    # ----------------------
-    # BLOQUE DE DATOS GENERALES
-    # ----------------------
     st.subheader("REGISTRO DE HORAS EXTRA")
     nombre_empleado = st.text_input("Ingrese su nombre", value="")
-    sueldo_mensual = st.text_input("Ingrese su sueldo mensual (S/):", value="")  # Campo limpio por defecto
+    sueldo_mensual = st.text_input("Ingrese su sueldo mensual (S/):", value="")
     fecha_seleccionada = st.date_input("Seleccione la fecha (día, mes y año)")
 
-    # ----------------------
-    # BLOQUE HORAS EXTRA
-    # ----------------------
     if fecha_seleccionada:
         fecha_str = fecha_seleccionada.strftime("%Y-%m-%d")
 
-        # Guardar valor anterior antes de cambiar de fecha
         if st.session_state["ultima_fecha"] is not None and st.session_state["ultima_hora"] not in [None, ""]:
             try:
                 st.session_state["registro_horas"][st.session_state["ultima_fecha"]] = float(st.session_state["ultima_hora"])
             except:
                 st.session_state["registro_horas"][st.session_state["ultima_fecha"]] = 0
 
-        # Mostrar valor guardado o vacío
         valor_guardado = st.session_state["registro_horas"].get(fecha_str, "")
-        horas_extra_val = st.text_input(f"Horas extra del día {fecha_str}:", value=str(valor_guardado) if valor_guardado != "" else "")
+        horas_extra_val = st.text_input(
+            f"Horas extra del día {fecha_str}:",
+            value=str(valor_guardado) if valor_guardado != "" else ""
+        )
 
-        # Guardar temporalmente
         st.session_state["ultima_fecha"] = fecha_str
         st.session_state["ultima_hora"] = horas_extra_val
 
-    # ----------------------
-    # BOTONES CALCULAR Y LIMPIAR
-    # ----------------------
     col1, col2 = st.columns(2)
     with col1:
         if st.button("Calcular Horas Extra"):
@@ -135,7 +134,6 @@ with st.container():
                     st.warning("⚠️ El sueldo debe ser un número válido.")
                     st.stop()
 
-                # Guardar la última fecha
                 if st.session_state["ultima_fecha"] is not None and st.session_state["ultima_hora"] not in [None, ""]:
                     try:
                         st.session_state["registro_horas"][st.session_state["ultima_fecha"]] = float(st.session_state["ultima_hora"])
@@ -153,7 +151,7 @@ with st.container():
                         h = float(h)
                         fecha = datetime.strptime(f_str, "%Y-%m-%d")
                         dia_semana = fecha.weekday()
-                        es_domingo_o_feriado = dia_semana in [5,6] or f_str in feriados
+                        es_domingo_o_feriado = dia_semana in [5, 6] or f_str in feriados
                         if es_domingo_o_feriado:
                             pago = round(h * valor_hora * 2, 2)
                         else:
@@ -175,7 +173,6 @@ with st.container():
                     st.dataframe(df)
                     st.write("💰 **Total de horas extra (S/):**", df["Pago Extra (S/)"].sum())
 
-                    # Botón para descargar Excel
                     output = BytesIO()
                     df.to_excel(output, index=False, engine='openpyxl')
                     output.seek(0)
