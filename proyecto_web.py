@@ -17,13 +17,14 @@ if "ultima_hora" not in st.session_state:
     st.session_state["ultima_hora"] = None
 
 # ==============================
-# ICONO Y NOMBRE PARA IOS (PWA)
+# ICONO, NOMBRE Y META PARA MÓVIL
 # ==============================
 st.markdown(
     """
     <meta name="apple-mobile-web-app-title" content="Horas Extra Marco">
     <link rel="apple-touch-icon" sizes="180x180" href="https://i.postimg.cc/ZnPMVtSs/RIVERPAZ.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     """,
     unsafe_allow_html=True
 )
@@ -50,16 +51,19 @@ st.markdown(
                     url('https://i.postimg.cc/ZnPMVtSs/RIVERPAZ.png');
         background-size: cover;
         background-position: center;
-        background-attachment: fixed;
+        background-attachment: scroll; /* Mejor para móviles */
     }
 
     /* Contenedor principal con blur */
     .contenido {
-        margin-top: 390px !important;
+        margin-top: 20vh; /* Ajustable según el tamaño de pantalla */
         padding: 20px;
         border-radius: 10px;
         backdrop-filter: blur(8px);
         background-color: rgba(255,255,255,0.2);
+        max-width: 90%; /* Evita que sea más ancho que la pantalla */
+        margin-left: auto;
+        margin-right: auto;
     }
 
     /* Quitar padding extra de Streamlit */
@@ -70,6 +74,11 @@ st.markdown(
     /* Separación de campos */
     .campo-datos {
         margin-bottom: 20px;
+    }
+
+    /* Ajuste de texto y inputs en móviles */
+    input, .stTextInput>div>div>input {
+        font-size: 1rem;
     }
     </style>
     """,
