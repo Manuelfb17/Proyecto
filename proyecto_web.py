@@ -51,7 +51,7 @@ st.markdown(
 
     /* Contenedor principal con blur y animación suave */
     .contenido {
-        margin-top: 1050px !important; /* 🔹 Baja todo el contenido */
+        margin-top: 500px !important; /* 🔹 Baja todo el contenido */
         padding: 20px;
         border-radius: 10px;
         backdrop-filter: blur(8px);
