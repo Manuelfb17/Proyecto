@@ -6,12 +6,15 @@ from io import BytesIO
 import locale
 
 # ==============================
-# CONFIGURACIÓN DEL IDIOMA (ESPAÑOL)
+# CONFIGURACIÓN SEGURA DEL IDIOMA (ESPAÑOL)
 # ==============================
 try:
-    locale.setlocale(locale.LC_TIME, "es_ES.UTF-8")  # Linux / Mac
-except:
-    locale.setlocale(locale.LC_TIME, "Spanish_Spain.1252")  # Windows
+    locale.setlocale(locale.LC_TIME, "es_ES.UTF-8")  # Linux/Mac
+except locale.Error:
+    try:
+        locale.setlocale(locale.LC_TIME, "es_PE.UTF-8")  # Español Perú
+    except locale.Error:
+        pass  # Evita que falle si no hay soporte de idioma
 
 # ==============================
 # CONFIGURACIÓN INICIAL DE SESIÓN
@@ -82,9 +85,6 @@ st.markdown(
 with st.container():
     st.markdown('<div class="contenido"></div>', unsafe_allow_html=True)
 
-    # ----------------------
-    # BLOQUE DE DATOS GENERALES
-    # ----------------------
     st.subheader("📅 REGISTRO DE HORAS EXTRA")
     nombre_empleado = st.text_input("👤 Ingrese su nombre", value="")
     sueldo_mensual = st.text_input("💰 Ingrese su sueldo mensual (S/):", value="")
@@ -96,18 +96,14 @@ with st.container():
     if fecha_seleccionada:
         fecha_str = fecha_seleccionada.strftime("%Y-%m-%d")
 
-        # Guardar valor anterior antes de cambiar de fecha
         if st.session_state["ultima_fecha"] is not None and st.session_state["ultima_hora"] not in [None, ""]:
             try:
                 st.session_state["registro_horas"][st.session_state["ultima_fecha"]] = float(st.session_state["ultima_hora"])
             except:
                 st.session_state["registro_horas"][st.session_state["ultima_fecha"]] = 0
 
-        # Mostrar valor guardado o vacío
         valor_guardado = st.session_state["registro_horas"].get(fecha_str, "")
         horas_extra_val = st.text_input(f"⏱️ Horas extra del día {fecha_str}:", value=str(valor_guardado) if valor_guardado != "" else "")
-
-        # Guardar temporalmente
         st.session_state["ultima_fecha"] = fecha_str
         st.session_state["ultima_hora"] = horas_extra_val
 
@@ -124,7 +120,6 @@ with st.container():
                     st.warning("⚠️ El sueldo debe ser un número válido.")
                     st.stop()
 
-                # Guardar la última fecha
                 if st.session_state["ultima_fecha"] is not None and st.session_state["ultima_hora"] not in [None, ""]:
                     try:
                         st.session_state["registro_horas"][st.session_state["ultima_fecha"]] = float(st.session_state["ultima_hora"])
@@ -165,7 +160,6 @@ with st.container():
                     st.dataframe(df)
                     st.write("💰 **Total de pago por horas extra (S/):**", round(df["Pago Extra (S/)"].sum(), 2))
 
-                    # Botón para descargar Excel
                     output = BytesIO()
                     df.to_excel(output, index=False, engine='openpyxl')
                     output.seek(0)
