@@ -68,7 +68,7 @@ st.markdown(
     }
 
     /* Ajustes para móviles medianos y tablets */
-    @media (max-width: 768px) {
+    @media (max-width: 300x) {
         .stApp {
             background-size: 50% 50%; /* Fondo ocupa todo ancho y alto */
         }
