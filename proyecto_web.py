@@ -68,9 +68,9 @@ st.markdown(
     }
 
     /* Ajustes para móviles medianos y tablets */
-    @media (max-width: 5 00x) {
+    @media (max-width: 500x) {
         .stApp {
-            background-size: 10% 10%; /* Fondo ocupa todo ancho y alto */
+            background-size: 100% 100%; /* Fondo ocupa todo ancho y alto */
         }
         .contenido {
             margin-top: 5vh;
