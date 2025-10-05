@@ -17,14 +17,13 @@ if "ultima_hora" not in st.session_state:
     st.session_state["ultima_hora"] = None
 
 # ==============================
-# ICONO, NOMBRE Y META PARA MÓVIL
+# ICONO Y NOMBRE PARA IOS (PWA)
 # ==============================
 st.markdown(
     """
     <meta name="apple-mobile-web-app-title" content="Horas Extra Marco">
     <link rel="apple-touch-icon" sizes="180x180" href="https://i.postimg.cc/ZnPMVtSs/RIVERPAZ.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     """,
     unsafe_allow_html=True
 )
@@ -45,25 +44,24 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-    /* Fondo dinámico */
+    /* Fondo dinámico adaptado a móviles */
     .stApp {
         background: linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 40%),
                     url('https://i.postimg.cc/ZnPMVtSs/RIVERPAZ.png');
-        background-size: cover;
-        background-position: center;
-        background-attachment: scroll; /* Mejor para móviles */
+        background-size: contain;       /* Mostrar la imagen completa */
+        background-position: center;    /* Centrar la imagen */
+        background-repeat: no-repeat;   /* No repetir la imagen */
+        background-attachment: scroll;
+        min-height: 100vh;              /* Al menos la altura de la pantalla */
     }
 
     /* Contenedor principal con blur */
     .contenido {
-        margin-top: 70vh; /* Ajustable según el tamaño de pantalla */
+        margin-top: 390px !important;
         padding: 20px;
         border-radius: 10px;
         backdrop-filter: blur(8px);
         background-color: rgba(255,255,255,0.2);
-        max-width: 90%; /* Evita que sea más ancho que la pantalla */
-        margin-left: auto;
-        margin-right: auto;
     }
 
     /* Quitar padding extra de Streamlit */
@@ -74,11 +72,6 @@ st.markdown(
     /* Separación de campos */
     .campo-datos {
         margin-bottom: 20px;
-    }
-
-    /* Ajuste de texto y inputs en móviles */
-    input, .stTextInput>div>div>input {
-        font-size: 1rem;
     }
     </style>
     """,
