@@ -3,21 +3,10 @@ import pandas as pd
 from datetime import datetime
 import holidays
 from io import BytesIO
-import locale
+from streamlit_calendar import calendar as st_calendar
 
 # ==============================
-# Configuración regional (idioma español)
-# ==============================
-try:
-    locale.setlocale(locale.LC_TIME, "es_ES.UTF-8")
-except:
-    try:
-        locale.setlocale(locale.LC_TIME, "Spanish_Spain")
-    except:
-        pass
-
-# ==============================
-# Configuración inicial de sesión
+# CONFIGURACIÓN DE SESIÓN
 # ==============================
 if "registro_horas" not in st.session_state:
     st.session_state["registro_horas"] = {}
@@ -27,7 +16,7 @@ if "ultima_hora" not in st.session_state:
     st.session_state["ultima_hora"] = None
 
 # ==============================
-# ICONO Y NOMBRE PARA IOS (PWA)
+# ICONO Y NOMBRE (PWA iOS)
 # ==============================
 st.markdown("""
 <meta name="apple-mobile-web-app-title" content="Horas Extra Marco">
@@ -46,13 +35,13 @@ st.set_page_config(
 )
 
 # ==============================
-# ESTILOS: fondo dinámico, contenedor difuminado y calendario en español
+# ESTILOS VISUALES
 # ==============================
 st.markdown(
     """
     <style>
     .stApp {
-        background: 
+        background:
             linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 40%),
             url('https://www.marco.com.pe/wp-content/uploads/2021/01/marco-7.jpg');
         background-size: cover;
@@ -76,36 +65,38 @@ st.markdown(
         margin-bottom: 20px;
     }
     </style>
-
-    <script>
-    // Traducir los días abreviados del calendario al español
-    const observer = new MutationObserver(() => {
-        document.querySelectorAll('abbr[title="Monday"]').forEach(e => e.textContent = 'Lun');
-        document.querySelectorAll('abbr[title="Tuesday"]').forEach(e => e.textContent = 'Mar');
-        document.querySelectorAll('abbr[title="Wednesday"]').forEach(e => e.textContent = 'Mié');
-        document.querySelectorAll('abbr[title="Thursday"]').forEach(e => e.textContent = 'Jue');
-        document.querySelectorAll('abbr[title="Friday"]').forEach(e => e.textContent = 'Vie');
-        document.querySelectorAll('abbr[title="Saturday"]').forEach(e => e.textContent = 'Sáb');
-        document.querySelectorAll('abbr[title="Sunday"]').forEach(e => e.textContent = 'Dom');
-    });
-
-    observer.observe(document.body, { childList: true, subtree: true });
-    </script>
     """,
     unsafe_allow_html=True
 )
 
 # ==============================
-# CONTENIDO DE LA APP
+# CONTENIDO PRINCIPAL
 # ==============================
 with st.container():
     st.markdown('<div class="contenido"></div>', unsafe_allow_html=True)
 
     st.subheader("REGISTRO DE HORAS EXTRA")
+
     nombre_empleado = st.text_input("Ingrese su nombre", value="")
     sueldo_mensual = st.text_input("Ingrese su sueldo mensual (S/):", value="")
-    fecha_seleccionada = st.date_input("Seleccione la fecha (día, mes y año)")
 
+    # ==============================
+    # CALENDARIO EN ESPAÑOL
+    # ==============================
+    st.markdown("#### 📅 Seleccione la fecha:")
+    cal_event = st_calendar(
+        locale="es",
+        initialView="dayGridMonth",
+        key="calendario_es"
+    )
+
+    fecha_seleccionada = None
+    if cal_event and "date" in cal_event:
+        fecha_seleccionada = datetime.strptime(cal_event["date"], "%Y-%m-%d")
+
+    # ==============================
+    # HORAS EXTRA
+    # ==============================
     if fecha_seleccionada:
         fecha_str = fecha_seleccionada.strftime("%Y-%m-%d")
 
@@ -124,6 +115,9 @@ with st.container():
         st.session_state["ultima_fecha"] = fecha_str
         st.session_state["ultima_hora"] = horas_extra_val
 
+    # ==============================
+    # BOTONES
+    # ==============================
     col1, col2 = st.columns(2)
     with col1:
         if st.button("Calcular Horas Extra"):
@@ -142,7 +136,7 @@ with st.container():
 
                 valor_hora = round(sueldo_mensual_val / (8 * 5 * 4.33), 2)
                 registros = []
-                anio = fecha_seleccionada.year
+                anio = datetime.now().year
                 peru_feriados = holidays.Peru(years=anio)
                 feriados = [f.strftime("%Y-%m-%d") for f in peru_feriados.keys()]
 
@@ -151,7 +145,7 @@ with st.container():
                         h = float(h)
                         fecha = datetime.strptime(f_str, "%Y-%m-%d")
                         dia_semana = fecha.weekday()
-                        es_domingo_o_feriado = dia_semana in [5, 6] or f_str in feriados
+                        es_domingo_o_feriado = dia_semana == 6 or f_str in feriados
                         if es_domingo_o_feriado:
                             pago = round(h * valor_hora * 2, 2)
                         else:
