@@ -68,7 +68,7 @@ st.markdown(
     }
 
     /* Ajustes para móviles */
-    @media (max-width: 300px) {
+    @media (max-width: 768px) {
         .stApp {
             background-size: 100% 100%; /* Ancho y alto llenan pantalla en móviles */
         }
