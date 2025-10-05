@@ -138,6 +138,7 @@ with col1:
                 except:
                     st.session_state["registro_horas"][st.session_state["ultima_fecha"]] = 0
 
+            # Valor hora considerando 8 horas x 5 días x 4.33 semanas
             valor_hora = round(sueldo_mensual_val / (8 * 5 * 4.33), 2)
             registros = []
 
@@ -149,11 +150,12 @@ with col1:
                 if h not in ["", None]:
                     h = float(h)
                     fecha = datetime.strptime(f_str, "%Y-%m-%d")
-                    dia_semana = fecha.weekday()
-                    es_domingo_o_feriado = dia_semana in [5, 6] or f_str in feriados
+                    dia_semana = fecha.weekday()  # 0 = lunes, 6 = domingo
+                    es_domingo_o_feriado = dia_semana == 6 or f_str in feriados
 
+                    # Cálculo de pago
                     if es_domingo_o_feriado:
-                        pago = round(h * valor_hora * 2, 2)
+                        pago = round(h * valor_hora * 2, 2)  # 100% adicional
                     else:
                         if h <= 2:
                             pago = round(h * valor_hora * 1.25, 2)
