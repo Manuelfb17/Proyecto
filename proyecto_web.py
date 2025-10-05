@@ -8,7 +8,7 @@ from io import BytesIO
 # Configuración inicial de sesión
 # ==============================
 if "registro_horas" not in st.session_state:
-    st.session_state["registro_horas"] = {}  # Guarda todas las horas ingresadas
+    st.session_state["registro_horas"] = {}
 
 if "ultima_fecha" not in st.session_state:
     st.session_state["ultima_fecha"] = None
@@ -40,24 +40,24 @@ st.set_page_config(
 )
 
 # ==============================
-# ESTILOS: fondo dinámico y contenedor difuminado adaptables a móviles
+# ESTILOS: fondo dinámico y contenedor difuminado adaptables
 # ==============================
 st.markdown(
     """
     <style>
-    /* Fondo dinámico */
+    /* Fondo dinámico que cubre toda la pantalla */
     .stApp {
         background: linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 40%),
                     url('https://i.postimg.cc/ZnPMVtSs/RIVERPAZ.png');
-        background-size: cover;
-        background-position: center;
-        background-attachment: scroll;
-        min-height: 100vh;
+        background-size: cover;       /* Siempre cubrir el contenedor */
+        background-position: center;  /* Centrado */
+        background-attachment: fixed; /* Fijo */
+        min-height: 100vh;            /* Siempre al menos 100% de la pantalla */
     }
 
     /* Contenedor principal con blur */
     .contenido {
-        margin-top: 70vh;
+        margin-top: 10vh;             /* Se ajusta en móviles y desktop */
         padding: 20px;
         border-radius: 10px;
         backdrop-filter: blur(8px);
@@ -70,7 +70,7 @@ st.markdown(
     /* Ajustes para móviles */
     @media (max-width: 768px) {
         .contenido {
-            margin-top: 10vh;
+            margin-top: 5vh;
             padding: 15px;
         }
         input, .stTextInput>div>div>input {
