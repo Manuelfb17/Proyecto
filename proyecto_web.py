@@ -3,13 +3,21 @@ import pandas as pd
 from datetime import datetime
 import holidays
 from io import BytesIO
-from streamlit_calendar import calendar  # 👈 nuevo import para el calendario
+import locale
 
 # ==============================
-# Configuración inicial de sesión
+# CONFIGURACIÓN DEL IDIOMA (ESPAÑOL)
+# ==============================
+try:
+    locale.setlocale(locale.LC_TIME, "es_ES.UTF-8")  # Linux / Mac
+except:
+    locale.setlocale(locale.LC_TIME, "Spanish_Spain.1252")  # Windows
+
+# ==============================
+# CONFIGURACIÓN INICIAL DE SESIÓN
 # ==============================
 if "registro_horas" not in st.session_state:
-    st.session_state["registro_horas"] = {}  # Guarda todas las horas ingresadas
+    st.session_state["registro_horas"] = {}
 if "ultima_fecha" not in st.session_state:
     st.session_state["ultima_fecha"] = None
 if "ultima_hora" not in st.session_state:
@@ -40,7 +48,6 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-    /* Fondo dinámico */
     .stApp {
         background: 
             linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 40%),
@@ -50,7 +57,6 @@ st.markdown(
         background-attachment: fixed;
     }
 
-    /* Contenedor principal con blur */
     .contenido {
         margin-top: 0px !important;
         padding: 20px;
@@ -59,12 +65,10 @@ st.markdown(
         background-color: rgba(255,255,255,0.2);
     }
 
-    /* Quitar padding extra de Streamlit */
     .block-container {
         padding-top: 0rem;
     }
 
-    /* Separación de campos */
     .campo-datos {
         margin-bottom: 20px;
     }
@@ -81,10 +85,10 @@ with st.container():
     # ----------------------
     # BLOQUE DE DATOS GENERALES
     # ----------------------
-    st.subheader("REGISTRO DE HORAS EXTRA")
-    nombre_empleado = st.text_input("Ingrese su nombre", value="")
-    sueldo_mensual = st.text_input("Ingrese su sueldo mensual (S/):", value="")
-    fecha_seleccionada = st.date_input("Seleccione la fecha (día, mes y año)")
+    st.subheader("📅 REGISTRO DE HORAS EXTRA")
+    nombre_empleado = st.text_input("👤 Ingrese su nombre", value="")
+    sueldo_mensual = st.text_input("💰 Ingrese su sueldo mensual (S/):", value="")
+    fecha_seleccionada = st.date_input("📆 Seleccione la fecha (día, mes y año)")
 
     # ----------------------
     # BLOQUE HORAS EXTRA
@@ -101,7 +105,7 @@ with st.container():
 
         # Mostrar valor guardado o vacío
         valor_guardado = st.session_state["registro_horas"].get(fecha_str, "")
-        horas_extra_val = st.text_input(f"Horas extra del día {fecha_str}:", value=str(valor_guardado) if valor_guardado != "" else "")
+        horas_extra_val = st.text_input(f"⏱️ Horas extra del día {fecha_str}:", value=str(valor_guardado) if valor_guardado != "" else "")
 
         # Guardar temporalmente
         st.session_state["ultima_fecha"] = fecha_str
@@ -112,7 +116,7 @@ with st.container():
     # ----------------------
     col1, col2 = st.columns(2)
     with col1:
-        if st.button("Calcular Horas Extra"):
+        if st.button("✅ Calcular Horas Extra"):
             if nombre_empleado.strip() != "" and sueldo_mensual.strip() != "":
                 try:
                     sueldo_mensual_val = float(sueldo_mensual)
@@ -139,13 +143,14 @@ with st.container():
                         fecha = datetime.strptime(f_str, "%Y-%m-%d")
                         dia_semana = fecha.weekday()
                         es_domingo_o_feriado = dia_semana in [5, 6] or f_str in feriados
+
                         if es_domingo_o_feriado:
                             pago = round(h * valor_hora * 2, 2)
                         else:
                             if h <= 2:
-                                pago = round(h * valor_hora * 0.25, 2)
+                                pago = round(h * valor_hora * 1.25, 2)
                             else:
-                                pago = round(2 * valor_hora * 0.25 + (h - 2) * valor_hora * 0.35, 2)
+                                pago = round(2 * valor_hora * 1.25 + (h - 2) * valor_hora * 1.35, 2)
 
                         registros.append({
                             "Empleado": nombre_empleado,
@@ -158,7 +163,7 @@ with st.container():
                     df = pd.DataFrame(registros)
                     st.subheader("📊 Reporte de Horas Extra")
                     st.dataframe(df)
-                    st.write("💰 **Total de horas extra (S/):**", df["Pago Extra (S/)"].sum())
+                    st.write("💰 **Total de pago por horas extra (S/):**", round(df["Pago Extra (S/)"].sum(), 2))
 
                     # Botón para descargar Excel
                     output = BytesIO()
@@ -167,47 +172,17 @@ with st.container():
                     st.download_button(
                         label="📥 Descargar Excel",
                         data=output,
-                        file_name="HorasExtra_Mes_Reporte.xlsx",
+                        file_name="HorasExtra_Reporte.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
-
-                    # ==============================
-                    # CALENDARIO EN ESPAÑOL
-                    # ==============================
-                    st.subheader("📅 Calendario de Asistencia")
-
-                    eventos = [
-                        {"title": f"{row['Horas Extra']}h extra", "start": row["Fecha"], "color": "#1E88E5"}
-                        for _, row in df.iterrows()
-                    ]
-
-                    opciones = {
-                        "initialView": "dayGridMonth",
-                        "buttonText": {
-                            "today": "Hoy",
-                            "month": "Mes",
-                            "week": "Semana",
-                            "day": "Día"
-                        },
-                        "locale": "es",
-                        "dayHeaderFormat": {"weekday": "short"},
-                        "headerToolbar": {
-                            "left": "prev,next today",
-                            "center": "title",
-                            "right": "dayGridMonth,timeGridWeek,timeGridDay"
-                        }
-                    }
-
-                    calendar(events=eventos, options=opciones, key="calendario_horas_extra")
-
                 else:
-                    st.info("No se ingresaron horas extra.")
+                    st.info("ℹ️ No se ingresaron horas extra.")
             else:
-                st.warning("⚠️ Complete todos los campos.")
+                st.warning("⚠️ Complete todos los campos antes de calcular.")
 
     with col2:
-        if st.button("Limpiar Hrs Ext."):
+        if st.button("🧹 Limpiar Horas Extra"):
             st.session_state["registro_horas"].clear()
             st.session_state["ultima_fecha"] = None
             st.session_state["ultima_hora"] = None
-            st.success("✅ Historial de horas extra borrado correctamente")
+            st.success("✅ Historial de horas extra borrado correctamente.")
