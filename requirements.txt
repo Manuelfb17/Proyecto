@@ -5,3 +5,4 @@ xlsxwriter
 holidays
 gspread
 google-auth
+streamlit-calendar
