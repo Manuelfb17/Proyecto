@@ -1,3 +1,6 @@
+
+
+
 import streamlit as st
 import pandas as pd
 from datetime import datetime
@@ -34,7 +37,7 @@ st.set_page_config(
 )
 
 # ==============================
-# ESTILOS: fondo dinámico y animación suave del contenido
+# ESTILOS: fondo dinámico y contenedor difuminado
 # ==============================
 st.markdown(
     """
@@ -49,27 +52,13 @@ st.markdown(
         background-attachment: fixed;
     }
 
-    /* Contenedor principal con blur y animación suave */
+    /* Contenedor principal con blur */
     .contenido {
-        margin-top: 400px !important; /* 🔹 Baja todo el contenido */
+        margin-top:400px !important;
         padding: 20px;
         border-radius: 10px;
         backdrop-filter: blur(8px);
         background-color: rgba(255,255,255,0.2);
-        opacity: 0;
-        transform: translateY(-50px);
-        animation: bajarSuave 1.2s ease-out forwards;
-    }
-
-    @keyframes bajarSuave {
-        from {
-            opacity: 0;
-            transform: translateY(-50px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
     }
 
     /* Quitar padding extra de Streamlit */
@@ -81,21 +70,6 @@ st.markdown(
     .campo-datos {
         margin-bottom: 20px;
     }
-
-    /* 🔹 Eliminar línea o borde del título completamente */
-    h3, .stMarkdown h3, .stSubheader, .st-emotion-cache-1v0mbdj {
-        border: none !important;
-        box-shadow: none !important;
-        background: transparent !important;
-    }
-
-    /* Asegurar que no haya línea ni fondo encima */
-    [data-testid="stHeader"] div:has(h3),
-    div:has(> h3) {
-        border-top: none !important;
-        background: transparent !important;
-        box-shadow: none !important;
-    }
     </style>
     """, unsafe_allow_html=True
 )
@@ -104,14 +78,14 @@ st.markdown(
 # CONTENIDO DE LA APP
 # ==============================
 with st.container():
-    st.markdown('<div class="contenido">', unsafe_allow_html=True)
+    st.markdown('<div class="contenido"></div>', unsafe_allow_html=True)
 
     # ----------------------
     # BLOQUE DE DATOS GENERALES
     # ----------------------
     st.subheader("REGISTRO DE HORAS EXTRA")
     nombre_empleado = st.text_input("Ingrese su nombre", value="")
-    sueldo_mensual = st.text_input("Ingrese su sueldo mensual (S/):", value="")
+    sueldo_mensual = st.text_input("Ingrese su sueldo mensual (S/):", value="")  # Campo limpio por defecto
     fecha_seleccionada = st.date_input("Seleccione la fecha (día, mes y año)")
 
     # ----------------------
@@ -155,7 +129,6 @@ with st.container():
                     except:
                         st.session_state["registro_horas"][st.session_state["ultima_fecha"]] = 0
 
-                # Cálculo base
                 valor_hora = round(sueldo_mensual_val / (8 * 5 * 4.33), 2)
                 registros = []
                 anio = fecha_seleccionada.year
@@ -167,14 +140,14 @@ with st.container():
                         h = float(h)
                         fecha = datetime.strptime(f_str, "%Y-%m-%d")
                         dia_semana = fecha.weekday()
-                        es_sabado_domingo_o_feriado = dia_semana in [5,6] or f_str in feriados
-                        if es_sabado_domingo_o_feriado:
+                        es_domingo_o_feriado = dia_semana in [5,6] or f_str in feriados
+                        if es_domingo_o_feriado:
                             pago = round(h * valor_hora * 2, 2)
                         else:
                             if h <= 2:
-                                pago = round(h * valor_hora * 1.25, 2)
+                                pago = round(h * valor_hora * 0.25, 2)
                             else:
-                                pago = round(2 * valor_hora * 1.25 + (h - 2) * valor_hora * 1.35, 2)
+                                pago = round(2*valor_hora*0.25 + (h-2)*valor_hora*0.35, 2)
 
                         registros.append({
                             "Empleado": nombre_empleado,
@@ -210,5 +183,3 @@ with st.container():
             st.session_state["ultima_fecha"] = None
             st.session_state["ultima_hora"] = None
             st.success("✅ Historial de horas extra borrado correctamente")
-
-    st.markdown('</div>', unsafe_allow_html=True)
