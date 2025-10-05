@@ -22,7 +22,7 @@ if "ultima_hora" not in st.session_state:
 st.markdown(
     """
     <meta name="apple-mobile-web-app-title" content="Horas Extra Marco">
-    <link rel="apple-touch-icon" sizes="50x50" href="https://i.postimg.cc/ZnPMVtSs/RIVERPAZ.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://i.postimg.cc/ZnPMVtSs/RIVERPAZ.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     """,
@@ -68,7 +68,7 @@ st.markdown(
     }
 
     /* Ajustes para móviles */
-    @media (max-width: 768px) {
+    @media (max-width: 300px) {
         .contenido {
             margin-top: 15vh; /* móviles: mantiene separación de fondo y campos */
             padding: 15px;
