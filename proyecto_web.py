@@ -49,40 +49,35 @@ st.markdown(
     .stApp {
         background: linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 40%),
                     url('https://i.postimg.cc/ZnPMVtSs/RIVERPAZ.png');
-        background-size: cover;
+        background-size: cover;       /* Desktop: cubrir */
         background-position: center;
-        background-attachment: fixed;
+        background-attachment: scroll;
         min-height: 100vh;
     }
 
     /* Contenedor principal con blur */
     .contenido {
-        margin-top: 70vh;  /* desktop */
+        margin-top: 70vh;             /* No tocar */
         padding: 20px;
         border-radius: 10px;
         backdrop-filter: blur(8px);
         background-color: rgba(255,255,255,0.2);
-        max-width: 70%;   /* ancho para desktop */
+        max-width: 90%;
         margin-left: auto;
         margin-right: auto;
     }
 
-    /* Ajustes para móviles pequeños */
+    /* Ajustes para móviles */
     @media (max-width: 300px) {
+        .stApp {
+            background-size: 100% 100%; /* Ancho y alto llenan pantalla en móviles */
+        }
         .contenido {
-            margin-top: 15vh; /* mantiene separación de fondo y campos */
+            margin-top: 5vh;
             padding: 15px;
         }
         input, .stTextInput>div>div>input {
             font-size: 0.9rem;
-        }
-    }
-
-    /* Ajustes para móviles medianos y tablets */
-    @media (max-width: 768px) {
-        .contenido {
-            max-width: 95%;  /* ancho casi completo en móviles */
-            padding: 15px;
         }
     }
 
@@ -113,6 +108,7 @@ st.subheader("REGISTRO DE HORAS EXTRA")
 
 nombre_empleado = st.text_input("Ingrese su nombre", value="")
 sueldo_mensual = st.text_input("Ingrese su sueldo mensual (S/):", value="")
+
 fecha_seleccionada = st.date_input("Seleccione la fecha (día, mes y año)")
 
 # ----------------------
