@@ -62,19 +62,27 @@ st.markdown(
         border-radius: 10px;
         backdrop-filter: blur(8px);
         background-color: rgba(255,255,255,0.2);
-        max-width: 90%;
+        max-width: 70%;   /* ancho para desktop */
         margin-left: auto;
         margin-right: auto;
     }
 
-    /* Ajustes para móviles */
+    /* Ajustes para móviles pequeños */
     @media (max-width: 300px) {
         .contenido {
-            margin-top: 15vh; /* móviles: mantiene separación de fondo y campos */
+            margin-top: 15vh; /* mantiene separación de fondo y campos */
             padding: 15px;
         }
         input, .stTextInput>div>div>input {
             font-size: 0.9rem;
+        }
+    }
+
+    /* Ajustes para móviles medianos y tablets */
+    @media (max-width: 768px) {
+        .contenido {
+            max-width: 95%;  /* ancho casi completo en móviles */
+            padding: 15px;
         }
     }
 
