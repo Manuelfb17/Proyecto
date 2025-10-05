@@ -57,7 +57,7 @@ st.markdown(
 
     /* Contenedor principal con blur */
     .contenido {
-        margin-top: 20vh;
+        margin-top: 70vh;
         padding: 20px;
         border-radius: 10px;
         backdrop-filter: blur(8px);
