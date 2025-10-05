@@ -40,24 +40,22 @@ st.set_page_config(
 )
 
 # ==============================
-# ESTILOS: fondo dinámico y contenedor difuminado adaptables
+# ESTILOS
 # ==============================
 st.markdown(
     """
     <style>
-    /* Fondo dinámico que cubre toda la pantalla */
     .stApp {
         background: linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 40%),
                     url('https://i.postimg.cc/ZnPMVtSs/RIVERPAZ.png');
-        background-size: cover;       /* Desktop: cubrir */
+        background-size: cover;
         background-position: center;
         background-attachment: scroll;
         min-height: 100vh;
     }
 
-    /* Contenedor principal con blur */
     .contenido {
-        margin-top: 170vh;             /* No tocar */
+        margin-top: 70vh;
         padding: 20px;
         border-radius: 10px;
         backdrop-filter: blur(8px);
@@ -67,10 +65,9 @@ st.markdown(
         margin-right: auto;
     }
 
-    /* Ajustes para móviles medianos y tablets */
-    @media (max-width: 768px) {
+    @media (max-width: 300px) {
         .stApp {
-            background-size: 100% 100%; /* Fondo ocupa todo ancho y alto */
+            background-size: 100% 100%;
         }
         .contenido {
             margin-top: 5vh;
@@ -81,10 +78,9 @@ st.markdown(
         }
     }
 
-    /* Ajustes para móviles muy pequeños */
-    @media (max-width: 76800px) {
+    @media (max-width: 300px) {
         .contenido {
-            margin-top: 15vh; /* mantiene separación de fondo y campos */
+            margin-top: 15vh;
             padding: 15px;
         }
         input, .stTextInput>div>div>input {
@@ -92,12 +88,10 @@ st.markdown(
         }
     }
 
-    /* Quitar padding extra de Streamlit */
     .block-container {
         padding-top: 0rem;
     }
 
-    /* Separación de campos */
     .campo-datos {
         margin-bottom: 20px;
     }
