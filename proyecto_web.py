@@ -67,13 +67,24 @@ st.markdown(
         margin-right: auto;
     }
 
-    /* Ajustes para móviles */
+    /* Ajustes para móviles medianos y tablets */
     @media (max-width: 768px) {
         .stApp {
-            background-size: 100% 100%; /* Ancho y alto llenan pantalla en móviles */
+            background-size: 100% 100%; /* Fondo ocupa todo ancho y alto */
         }
         .contenido {
             margin-top: 5vh;
+            padding: 15px;
+        }
+        input, .stTextInput>div>div>input {
+            font-size: 0.9rem;
+        }
+    }
+
+    /* Ajustes para móviles muy pequeños */
+    @media (max-width: 300px) {
+        .contenido {
+            margin-top: 15vh; /* mantiene separación de fondo y campos */
             padding: 15px;
         }
         input, .stTextInput>div>div>input {
@@ -108,7 +119,6 @@ st.subheader("REGISTRO DE HORAS EXTRA")
 
 nombre_empleado = st.text_input("Ingrese su nombre", value="")
 sueldo_mensual = st.text_input("Ingrese su sueldo mensual (S/):", value="")
-
 fecha_seleccionada = st.date_input("Seleccione la fecha (día, mes y año)")
 
 # ----------------------
