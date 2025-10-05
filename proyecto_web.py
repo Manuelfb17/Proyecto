@@ -82,10 +82,19 @@ st.markdown(
         margin-bottom: 20px;
     }
 
-    /* 🔹 Quitar la línea superior del subheader */
-    h3 {
+    /* 🔹 Eliminar línea o borde del título completamente */
+    h3, .stMarkdown h3, .stSubheader, .st-emotion-cache-1v0mbdj {
+        border: none !important;
+        box-shadow: none !important;
+        background: transparent !important;
+    }
+
+    /* Asegurar que no haya línea ni fondo encima */
+    [data-testid="stHeader"] div:has(h3),
+    div:has(> h3) {
         border-top: none !important;
-        margin-top: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
     }
     </style>
     """, unsafe_allow_html=True
