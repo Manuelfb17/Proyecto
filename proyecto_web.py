@@ -142,9 +142,9 @@ with st.container():
                             pago = round(h * valor_hora * 2, 2)
                         else:
                             if h <= 2:
-                                pago = round(h * valor_hora * 0.25, 2)
+                                pago = round(h * valor_hora * 1.25, 2)
                             else:
-                                pago = round(2*valor_hora*0.25 + (h-2)*valor_hora*0.35, 2)
+                                pago = round(2 * valor_hora * 1.25 + (h - 2) * valor_hora * 1.35, 2)
 
                         registros.append({
                             "Empleado": nombre_empleado,
