@@ -22,7 +22,7 @@ if "ultima_hora" not in st.session_state:
 st.markdown(
     """
     <meta name="apple-mobile-web-app-title" content="Horas Extra Marco">
-    <link rel="apple-touch-icon" sizes="180x180" href="https://i.postimg.cc/7PjfgKkz/marco-peruana.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://i.postimg.cc/ZnPMVtSs/RIVERPAZ.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     """,
     unsafe_allow_html=True
@@ -47,7 +47,7 @@ st.markdown(
     /* Fondo dinámico */
     .stApp {
         background: linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 40%),
-                    url('https://www.marco.com.pe/wp-content/uploads/2021/01/marco-7.jpg');
+                    url('https://i.postimg.cc/ZnPMVtSs/RIVERPAZ.png');
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
