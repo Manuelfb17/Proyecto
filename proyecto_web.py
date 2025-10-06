@@ -56,7 +56,7 @@ st.markdown(
 
     /* Contenedor principal */
     .contenido {
-        margin-top: 70vh;
+        margin-top: 50vh;
         padding: 20px;
         border-radius: 10px;
         backdrop-filter: blur(8px);
