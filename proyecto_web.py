@@ -88,8 +88,7 @@ st.markdown(
 # ==============================
 # CONTENIDO DE LA APP
 # ==============================
-with st.container():
-    st.markdown('<div class="contenido"></div>', unsafe_allow_html=True)
+
 
 # ----------------------
 # BLOQUE DE DATOS GENERALES
