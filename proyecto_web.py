@@ -8,7 +8,7 @@ from io import BytesIO
 # Configuración inicial de sesión
 # ==============================
 if "registro_horas" not in st.session_state:
-    st.session_state["registro_horas"] = {}
+    st.session_state["registro_horas"] = {}  # Guarda todas las horas ingresadas
 
 if "ultima_fecha" not in st.session_state:
     st.session_state["ultima_fecha"] = None
@@ -40,101 +40,45 @@ st.set_page_config(
 )
 
 # ==============================
-# ESTILOS (actualizado con fondo difuminado detrás del texto)
+# ESTILOS: fondo dinámico y contenedor difuminado
 # ==============================
 st.markdown(
     """
     <style>
+    /* Fondo dinámico */
     .stApp {
         background: linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 40%),
                     url('https://i.postimg.cc/ZnPMVtSs/RIVERPAZ.png');
         background-size: cover;
         background-position: center;
-        background-attachment: scroll;
-        min-height: 100vh;
+        background-attachment: scroll; /* Mejor para móviles */
     }
 
+    /* Contenedor principal con blur */
     .contenido {
-        margin-top: 70vh;
+        margin-top: 70vh; /* Ajustable según el tamaño de pantalla */
         padding: 20px;
         border-radius: 10px;
         backdrop-filter: blur(8px);
         background-color: rgba(255,255,255,0.2);
-        max-width: 90%;
+        max-width: 90%; /* Evita que sea más ancho que la pantalla */
         margin-left: auto;
         margin-right: auto;
     }
 
-    /* === Fondo difuminado y transparente solo detrás de letras === */
-    .stApp h1,
-    .stApp h2,
-    .stApp h3,
-    .stApp h4,
-    .stApp h5,
-    .stApp h6,
-    .stApp p,
-    .stApp strong,
-    .stApp em,
-    .stApp span,
-    .stApp label,
-    .stApp a,
-    .stMarkdown,
-    .css-1nw3w0a,
-    .stText {
-        display: inline-block;
-        padding: 0.08em 0.22em;
-        margin: 0.05em 0;
-        background-color: rgba(255,255,255,0.16);
-        -webkit-backdrop-filter: blur(6px);
-        backdrop-filter: blur(6px);
-        border-radius: 6px;
-        line-height: 1;
-        -webkit-text-fill-color: inherit;
-        box-decoration-break: clone;
-    }
-
-    /* Evitar que los elementos interactivos tomen el fondo difuminado */
-    .stApp input,
-    .stApp textarea,
-    .stApp select,
-    .stApp table,
-    .stDataFrame,
-    .stDownloadButton,
-    .stButton,
-    .stCheckbox,
-    .stRadio,
-    .stSlider,
-    .streamlit-expander,
-    .stMarkdown table,
-    .stWrites {
-        background: transparent !important;
-        backdrop-filter: none !important;
-        display: initial !important;
-        padding: initial !important;
-        margin: initial !important;
-        border-radius: initial !important;
-    }
-
-    @media (max-width: 600px) {
-        .contenido {
-            margin-top: 15vh;
-            padding: 15px;
-        }
-        .stApp h1,
-        .stApp h2,
-        .stApp p,
-        .stApp span {
-            padding: 0.06em 0.16em;
-            border-radius: 5px;
-        }
-    }
-
+    /* Quitar padding extra de Streamlit */
     .block-container {
         padding-top: 0rem;
     }
 
+    /* Separación de campos */
     .campo-datos {
         margin-bottom: 20px;
+    }
+
+    /* Ajuste de texto y inputs en móviles */
+    input, .stTextInput>div>div>input {
+        font-size: 1rem;
     }
     </style>
     """,
@@ -154,6 +98,8 @@ st.subheader("REGISTRO DE HORAS EXTRA")
 
 nombre_empleado = st.text_input("Ingrese su nombre", value="")
 sueldo_mensual = st.text_input("Ingrese su sueldo mensual (S/):", value="")
+
+# Campo limpio por defecto
 fecha_seleccionada = st.date_input("Seleccione la fecha (día, mes y año)")
 
 # ----------------------
@@ -162,18 +108,21 @@ fecha_seleccionada = st.date_input("Seleccione la fecha (día, mes y año)")
 if fecha_seleccionada:
     fecha_str = fecha_seleccionada.strftime("%Y-%m-%d")
 
+    # Guardar valor anterior antes de cambiar de fecha
     if st.session_state["ultima_fecha"] is not None and st.session_state["ultima_hora"] not in [None, ""]:
         try:
             st.session_state["registro_horas"][st.session_state["ultima_fecha"]] = float(st.session_state["ultima_hora"])
-        except:
-            st.session_state["registro_horas"][st.session_state["ultima_fecha"]] = 0
+        except ValueError:
+            st.session_state["registro_horas"][st.session_state["ultima_fecha"]] = 0.0
 
+    # Mostrar valor guardado o vacío
     valor_guardado = st.session_state["registro_horas"].get(fecha_str, "")
     horas_extra_val = st.text_input(
         f"Horas extra del día {fecha_str}:",
         value=str(valor_guardado) if valor_guardado != "" else ""
     )
 
+    # Guardar temporalmente
     st.session_state["ultima_fecha"] = fecha_str
     st.session_state["ultima_hora"] = horas_extra_val
 
@@ -187,16 +136,18 @@ with col1:
         if nombre_empleado.strip() != "" and sueldo_mensual.strip() != "":
             try:
                 sueldo_mensual_val = float(sueldo_mensual)
-            except:
+            except ValueError:
                 st.warning("⚠️ El sueldo debe ser un número válido.")
                 st.stop()
 
+            # Guardar la última fecha
             if st.session_state["ultima_fecha"] is not None and st.session_state["ultima_hora"] not in [None, ""]:
                 try:
                     st.session_state["registro_horas"][st.session_state["ultima_fecha"]] = float(st.session_state["ultima_hora"])
-                except:
-                    st.session_state["registro_horas"][st.session_state["ultima_fecha"]] = 0
+                except ValueError:
+                    st.session_state["registro_horas"][st.session_state["ultima_fecha"]] = 0.0
 
+            # Valor hora considerando 8 horas x 5 días x 4.33 semanas
             valor_hora = round(sueldo_mensual_val / (8 * 5 * 4.33), 2)
             registros = []
 
@@ -206,13 +157,18 @@ with col1:
 
             for f_str, h in st.session_state["registro_horas"].items():
                 if h not in ["", None]:
-                    h = float(h)
+                    try:
+                        h = float(h)
+                    except ValueError:
+                        h = 0.0
+
                     fecha = datetime.strptime(f_str, "%Y-%m-%d")
-                    dia_semana = fecha.weekday()
+                    dia_semana = fecha.weekday()  # 0 = lunes, 6 = domingo
                     es_domingo_o_feriado = dia_semana == 6 or f_str in feriados
 
+                    # Cálculo de pago
                     if es_domingo_o_feriado:
-                        pago = round(h * valor_hora * 2, 2)
+                        pago = round(h * valor_hora * 2, 2)  # 100% adicional
                     else:
                         if h <= 2:
                             pago = round(h * valor_hora * 1.25, 2)
@@ -232,6 +188,7 @@ with col1:
                 st.dataframe(df)
                 st.write("💰 **Total de horas extra (S/):**", df["Pago Extra (S/)"].sum())
 
+                # Botón para descargar Excel
                 output = BytesIO()
                 df.to_excel(output, index=False, engine='openpyxl')
                 output.seek(0)
