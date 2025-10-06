@@ -17,7 +17,7 @@ if "ultima_hora" not in st.session_state:
     st.session_state["ultima_hora"] = None
 
 # ==============================
-# Fondo con imagen y estilo difuminado de texto
+# Fondo con imagen + texto con fondo difuminado
 # ==============================
 page_bg_img = """
 <style>
@@ -28,31 +28,33 @@ page_bg_img = """
     background-attachment: fixed;
 }
 
-* {
+/* Color y sombra general de texto */
+h1, h2, h3, h4, h5, h6, p, label, .stMarkdown, .stTextInput label {
     color: white !important;
-    text-shadow: 0px 0px 10px rgba(0, 0, 0, 0.7) !important;
+    text-shadow: 0 0 8px rgba(0,0,0,0.8);
 }
 
-/* Crea un fondo difuminado detrás del texto */
-h1, h2, h3, h4, h5, h6, p, label, span, div, button {
-    background: rgba(0, 0, 0, 0.35) !important;
-    backdrop-filter: blur(6px) !important;
-    border-radius: 10px;
-    padding: 4px 8px;
-    display: inline-block;
+/* Cajas difuminadas detrás del texto */
+.block-container, .stMarkdown, .stDataFrame, .stTextInput, .stSelectbox, .stButton, .stAlert {
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(6px);
+    border-radius: 12px;
+    padding: 10px;
 }
 
-/* Ajustes de botones */
+/* Botones */
 button {
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    transition: all 0.3s ease;
+    color: white !important;
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    border-radius: 10px !important;
+    transition: all 0.3s ease-in-out;
 }
 button:hover {
-    background: rgba(255, 255, 255, 0.15) !important;
+    background: rgba(255, 255, 255, 0.3) !important;
 }
 </style>
 """
-
 st.markdown(page_bg_img, unsafe_allow_html=True)
 
 # ==============================
@@ -61,7 +63,7 @@ st.markdown(page_bg_img, unsafe_allow_html=True)
 st.title("🕒 Registro de horas laborales")
 
 # ==============================
-# Función para verificar feriados en Perú
+# Feriados Perú
 # ==============================
 feriados_pe = holidays.Peru()
 
@@ -69,7 +71,7 @@ def es_feriado(fecha):
     return fecha in feriados_pe
 
 # ==============================
-# Registro de entrada/salida
+# Registro
 # ==============================
 nombre = st.text_input("Ingrese su nombre:")
 accion = st.selectbox("Seleccione acción:", ["Entrada", "Salida"])
