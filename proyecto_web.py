@@ -40,7 +40,7 @@ st.set_page_config(
 )
 
 # ==============================
-# ESTILOS
+# ESTILOS (actualizado con fondo difuminado detrás del texto)
 # ==============================
 st.markdown(
     """
@@ -65,26 +65,67 @@ st.markdown(
         margin-right: auto;
     }
 
-    @media (max-width: 300px) {
-        .stApp {
-            background-size: 100% 100%;
-        }
-        .contenido {
-            margin-top: 5vh;
-            padding: 15px;
-        }
-        input, .stTextInput>div>div>input {
-            font-size: 0.9rem;
-        }
+    /* === Fondo difuminado y transparente solo detrás de letras === */
+    .stApp h1,
+    .stApp h2,
+    .stApp h3,
+    .stApp h4,
+    .stApp h5,
+    .stApp h6,
+    .stApp p,
+    .stApp strong,
+    .stApp em,
+    .stApp span,
+    .stApp label,
+    .stApp a,
+    .stMarkdown,
+    .css-1nw3w0a,
+    .stText {
+        display: inline-block;
+        padding: 0.08em 0.22em;
+        margin: 0.05em 0;
+        background-color: rgba(255,255,255,0.16);
+        -webkit-backdrop-filter: blur(6px);
+        backdrop-filter: blur(6px);
+        border-radius: 6px;
+        line-height: 1;
+        -webkit-text-fill-color: inherit;
+        box-decoration-break: clone;
     }
 
-    @media (max-width: 300px) {
+    /* Evitar que los elementos interactivos tomen el fondo difuminado */
+    .stApp input,
+    .stApp textarea,
+    .stApp select,
+    .stApp table,
+    .stDataFrame,
+    .stDownloadButton,
+    .stButton,
+    .stCheckbox,
+    .stRadio,
+    .stSlider,
+    .streamlit-expander,
+    .stMarkdown table,
+    .stWrites {
+        background: transparent !important;
+        backdrop-filter: none !important;
+        display: initial !important;
+        padding: initial !important;
+        margin: initial !important;
+        border-radius: initial !important;
+    }
+
+    @media (max-width: 600px) {
         .contenido {
             margin-top: 15vh;
             padding: 15px;
         }
-        input, .stTextInput>div>div>input {
-            font-size: 0.9rem;
+        .stApp h1,
+        .stApp h2,
+        .stApp p,
+        .stApp span {
+            padding: 0.06em 0.16em;
+            border-radius: 5px;
         }
     }
 
