@@ -62,7 +62,7 @@ st.markdown(
 
     /* Contenedor principal */
     .contenido {
-        padding: 20px 25px;
+        padding: 70px 25px;
         border-radius: 20px;
         backdrop-filter: blur(8px);
         background-color: rgba(255, 255, 255, 0.25);
