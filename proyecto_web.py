@@ -40,19 +40,18 @@ st.set_page_config(
 )
 
 # ==============================
-# ESTILOS: fondo dinámico, modo oscuro solo en inputs
+# ESTILOS: fondo dinámico + modo oscuro parcial
 # ==============================
 st.markdown(
     """
     <style>
-    /* Fondo general */
+    /* Fondo dinámico */
     .stApp {
         background: linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 40%),
                     url('https://i.postimg.cc/ZnPMVtSs/RIVERPAZ.png');
         background-size: cover;
         background-position: center;
         background-attachment: scroll;
-        color: white !important; /* Letras blancas en todo */
     }
 
     /* Contenedor principal */
@@ -61,52 +60,39 @@ st.markdown(
         padding: 20px;
         border-radius: 10px;
         backdrop-filter: blur(8px);
-        background-color: rgba(255,255,255,0.15);
+        background-color: rgba(255,255,255,0.2);
         max-width: 90%;
         margin-left: auto;
         margin-right: auto;
     }
 
-    /* Quitar padding extra */
+    /* Quitar padding extra de Streamlit */
     .block-container {
         padding-top: 0rem;
     }
 
-    /* Campos de texto: modo oscuro */
-    input, .stTextInput > div > div > input,
-    .stNumberInput > div > div > input,
-    .stDateInput > div > div > input {
-        background-color: rgba(30,30,30,0.9) !important;
-        color: white !important;
-        border: 1px solid rgba(255,255,255,0.3);
-        border-radius: 8px;
-        padding: 6px 10px;
-    }
-
-    /* Placeholder (texto guía dentro del input) */
-    input::placeholder {
-        color: #bbb !important;
-    }
-
-    /* Selector de fecha (ícono calendario) */
-    .stDateInput svg {
+    /* Todo el texto en color blanco */
+    body, .stApp, .stMarkdown, .stText, label, h1, h2, h3, p, span, div {
         color: white !important;
     }
 
-    /* Subtítulos y textos */
-    .stMarkdown, .stSubheader, .stText {
+    /* Inputs, selects, date inputs con fondo oscuro */
+    input, textarea, select, .stTextInput>div>div>input, .stNumberInput>div>div>input, .stDateInput input {
+        background-color: #1e1e1e !important;
         color: white !important;
+        border-radius: 8px !important;
+        border: 1px solid #555 !important;
     }
 
-    /* Botones */
-    button[kind="primary"] {
-        background-color: #222 !important;
-        color: white !important;
-        border-radius: 8px;
-        border: 1px solid rgba(255,255,255,0.4);
+    /* Placeholder de texto (gris claro) */
+    ::placeholder {
+        color: #bbbbbb !important;
+        opacity: 1 !important;
     }
-    button[kind="primary"]:hover {
-        background-color: #444 !important;
+
+    /* Ajuste de texto en móviles */
+    input, .stTextInput>div>div>input {
+        font-size: 1rem;
     }
     </style>
     """,
@@ -126,8 +112,6 @@ st.subheader("REGISTRO DE HORAS EXTRA")
 
 nombre_empleado = st.text_input("Ingrese su nombre", value="")
 sueldo_mensual = st.text_input("Ingrese su sueldo mensual (S/):", value="")
-
-# Campo limpio por defecto
 fecha_seleccionada = st.date_input("Seleccione la fecha (día, mes y año)")
 
 # ----------------------
@@ -136,26 +120,24 @@ fecha_seleccionada = st.date_input("Seleccione la fecha (día, mes y año)")
 if fecha_seleccionada:
     fecha_str = fecha_seleccionada.strftime("%Y-%m-%d")
 
-    # Guardar valor anterior antes de cambiar de fecha
+    # Guardar valor anterior
     if st.session_state["ultima_fecha"] is not None and st.session_state["ultima_hora"] not in [None, ""]:
         try:
             st.session_state["registro_horas"][st.session_state["ultima_fecha"]] = float(st.session_state["ultima_hora"])
         except:
             st.session_state["registro_horas"][st.session_state["ultima_fecha"]] = 0
 
-    # Mostrar valor guardado o vacío
     valor_guardado = st.session_state["registro_horas"].get(fecha_str, "")
     horas_extra_val = st.text_input(
         f"Horas extra del día {fecha_str}:",
         value=str(valor_guardado) if valor_guardado != "" else ""
     )
 
-    # Guardar temporalmente
     st.session_state["ultima_fecha"] = fecha_str
     st.session_state["ultima_hora"] = horas_extra_val
 
 # ----------------------
-# BOTONES CALCULAR Y LIMPIAR
+# BOTONES
 # ----------------------
 col1, col2 = st.columns(2)
 
@@ -168,14 +150,12 @@ with col1:
                 st.warning("⚠️ El sueldo debe ser un número válido.")
                 st.stop()
 
-            # Guardar la última fecha
             if st.session_state["ultima_fecha"] is not None and st.session_state["ultima_hora"] not in [None, ""]:
                 try:
                     st.session_state["registro_horas"][st.session_state["ultima_fecha"]] = float(st.session_state["ultima_hora"])
                 except:
                     st.session_state["registro_horas"][st.session_state["ultima_fecha"]] = 0
 
-            # Valor hora considerando 8 horas x 5 días x 4.33 semanas
             valor_hora = round(sueldo_mensual_val / (8 * 5 * 4.33), 2)
             registros = []
 
@@ -187,12 +167,11 @@ with col1:
                 if h not in ["", None]:
                     h = float(h)
                     fecha = datetime.strptime(f_str, "%Y-%m-%d")
-                    dia_semana = fecha.weekday()  # 0 = lunes, 6 = domingo
+                    dia_semana = fecha.weekday()
                     es_domingo_o_feriado = dia_semana == 6 or f_str in feriados
 
-                    # Cálculo de pago
                     if es_domingo_o_feriado:
-                        pago = round(h * valor_hora * 2, 2)  # 100% adicional
+                        pago = round(h * valor_hora * 2, 2)
                     else:
                         if h <= 2:
                             pago = round(h * valor_hora * 1.25, 2)
@@ -212,7 +191,6 @@ with col1:
                 st.dataframe(df)
                 st.write("💰 **Total de horas extra (S/):**", df["Pago Extra (S/)"].sum())
 
-                # Botón para descargar Excel
                 output = BytesIO()
                 df.to_excel(output, index=False, engine='openpyxl')
                 output.seek(0)
