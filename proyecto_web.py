@@ -8,7 +8,7 @@ from io import BytesIO
 # Configuración inicial de sesión
 # ==============================
 if "registro_horas" not in st.session_state:
-    st.session_state["registro_horas"] = {}  # Guarda todas las horas ingresadas
+    st.session_state["registro_horas"] = {}
 
 if "ultima_fecha" not in st.session_state:
     st.session_state["ultima_fecha"] = None
@@ -40,18 +40,18 @@ st.set_page_config(
 )
 
 # ==============================
-# ESTILOS: fondo + modo oscuro en letras e inputs
+# ESTILOS: fondo + inputs oscuros
 # ==============================
 st.markdown(
     """
     <style>
-    /* Fondo dinámico */
+    /* Fondo dinámico (se mantiene igual) */
     .stApp {
         background: linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 40%),
                     url('https://i.postimg.cc/ZnPMVtSs/RIVERPAZ.png');
         background-size: cover;
         background-position: center;
-        background-attachment: scroll; /* Mejor para móviles */
+        background-attachment: scroll;
     }
 
     /* Contenedor principal con blur */
@@ -66,30 +66,30 @@ st.markdown(
         margin-right: auto;
     }
 
-    /* Quitar padding extra de Streamlit */
+    /* Quitar padding extra */
     .block-container {
         padding-top: 0rem;
     }
 
-    /* Texto general (modo oscuro) */
+    /* Letras claras normales (sin modo oscuro global) */
     body, .stApp {
-        color: #f0f0f0 !important;
+        color: #000000 !important;
     }
 
-    /* Inputs, selects y áreas de texto */
+    /* Inputs y campos de texto oscuros */
     input, select, textarea, .stTextInput, .stTextArea, .stSelectbox, .stNumberInput {
         background-color: #1e1e1e !important;  /* Fondo oscuro */
-        color: #ffffff !important;             /* Texto claro */
-        border: 1px solid #444 !important;
+        color: #ffffff !important;             /* Texto blanco dentro del input */
+        border: 1px solid #555 !important;
         border-radius: 8px !important;
     }
 
-    /* Etiquetas y subtítulos */
+    /* Etiquetas, subtítulos y títulos (letras claras normales) */
     label, .stMarkdown, .stText, .stSelectbox label, .stSubheader {
-        color: #f5f5f5 !important;
+        color: #000000 !important;
     }
 
-    /* Ajuste de texto y inputs en móviles */
+    /* Ajuste de texto en móviles */
     input, .stTextInput>div>div>input {
         font-size: 1rem;
     }
@@ -121,21 +121,18 @@ fecha_seleccionada = st.date_input("Seleccione la fecha (día, mes y año)")
 if fecha_seleccionada:
     fecha_str = fecha_seleccionada.strftime("%Y-%m-%d")
 
-    # Guardar valor anterior antes de cambiar de fecha
     if st.session_state["ultima_fecha"] is not None and st.session_state["ultima_hora"] not in [None, ""]:
         try:
             st.session_state["registro_horas"][st.session_state["ultima_fecha"]] = float(st.session_state["ultima_hora"])
         except:
             st.session_state["registro_horas"][st.session_state["ultima_fecha"]] = 0
 
-    # Mostrar valor guardado o vacío
     valor_guardado = st.session_state["registro_horas"].get(fecha_str, "")
     horas_extra_val = st.text_input(
         f"Horas extra del día {fecha_str}:",
         value=str(valor_guardado) if valor_guardado != "" else ""
     )
 
-    # Guardar temporalmente
     st.session_state["ultima_fecha"] = fecha_str
     st.session_state["ultima_hora"] = horas_extra_val
 
@@ -153,14 +150,12 @@ with col1:
                 st.warning("⚠️ El sueldo debe ser un número válido.")
                 st.stop()
 
-            # Guardar la última fecha
             if st.session_state["ultima_fecha"] is not None and st.session_state["ultima_hora"] not in [None, ""]:
                 try:
                     st.session_state["registro_horas"][st.session_state["ultima_fecha"]] = float(st.session_state["ultima_hora"])
                 except:
                     st.session_state["registro_horas"][st.session_state["ultima_fecha"]] = 0
 
-            # Valor hora considerando 8 horas x 5 días x 4.33 semanas
             valor_hora = round(sueldo_mensual_val / (8 * 5 * 4.33), 2)
             registros = []
 
@@ -172,12 +167,11 @@ with col1:
                 if h not in ["", None]:
                     h = float(h)
                     fecha = datetime.strptime(f_str, "%Y-%m-%d")
-                    dia_semana = fecha.weekday()  # 0 = lunes, 6 = domingo
+                    dia_semana = fecha.weekday()
                     es_domingo_o_feriado = dia_semana == 6 or f_str in feriados
 
-                    # Cálculo de pago
                     if es_domingo_o_feriado:
-                        pago = round(h * valor_hora * 2, 2)  # 100% adicional
+                        pago = round(h * valor_hora * 2, 2)
                     else:
                         if h <= 2:
                             pago = round(h * valor_hora * 1.25, 2)
@@ -197,7 +191,6 @@ with col1:
                 st.dataframe(df)
                 st.write("💰 **Total de horas extra (S/):**", df["Pago Extra (S/)"].sum())
 
-                # Botón para descargar Excel
                 output = BytesIO()
                 df.to_excel(output, index=False, engine='openpyxl')
                 output.seek(0)
