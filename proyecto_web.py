@@ -56,7 +56,7 @@ st.markdown(
 
     /* Contenedor principal con blur */
     .contenido {
-        margin-top: 500vh; /* Ajustable según el tamaño de pantalla */
+        margin-top: 70vh; /* Ajustable según el tamaño de pantalla */
         padding: 20px;
         border-radius: 10px;
         backdrop-filter: blur(8px);
@@ -88,7 +88,8 @@ st.markdown(
 # ==============================
 # CONTENIDO DE LA APP
 # ==============================
-
+with st.container():
+    st.markdown('<div class="contenido"></div>', unsafe_allow_html=True)
 
 # ----------------------
 # BLOQUE DE DATOS GENERALES
