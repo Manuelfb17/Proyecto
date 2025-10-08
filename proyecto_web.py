@@ -16,198 +16,75 @@ if "ultima_fecha" not in st.session_state:
 if "ultima_hora" not in st.session_state:
     st.session_state["ultima_hora"] = None
 
-# ==============================
-# ICONO, NOMBRE Y META PARA MÓVIL
-# ==============================
-st.markdown(
-    """
-    <meta name="apple-mobile-web-app-title" content="Horas Extra Marco">
-    <link rel="apple-touch-icon" sizes="180x180" href="https://i.postimg.cc/ZnPMVtSs/RIVERPAZ.png">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    """,
-    unsafe_allow_html=True
-)
-
-# ----------------------
-# CONFIGURACIÓN DE LA PÁGINA
-# ----------------------
-st.set_page_config(
-    page_title="Registro de Horas Extra",
-    page_icon="⏰",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
 
 # ==============================
-# ESTILOS: modo oscuro solo para texto e inputs
+# Estilos personalizados (modo oscuro solo para letras e inputs)
 # ==============================
-st.markdown(
-    """
-    <style>
-    /* Mantiene tu fondo original */
-    .stApp {
-        background: linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 40%),
-                    url('https://i.postimg.cc/ZnPMVtSs/RIVERPAZ.png');
-        background-size: cover;
-        background-position: center;
-        background-attachment: scroll;
-    }
+st.markdown("""
+<style>
+/* Mantiene tu margen original */
+.main {
+    margin-top: 70vh;
+}
 
-    /* Texto general en claro */
-    .stApp, .stMarkdown, .stText, .stSubheader, .stHeader, label, h1, h2, h3, h4, h5, h6 {
-        color: #F2F2F2 !important;
-    }
+/* Aplica modo oscuro solo al texto */
+body, .stApp {
+    color: #f0f0f0 !important;  /* Letras claras */
+}
 
-    /* Inputs oscuros */
-    input, .stTextInput>div>div>input {
-        background-color: rgba(30, 30, 30, 0.85);
-        color: #EAEAEA;
-        border: 1px solid #555;
-        border-radius: 6px;
-        padding: 70px;
-        font-size: 1rem;
-    }
+/* Cuadros donde escribes información */
+input, select, textarea, .stTextInput, .stTextArea, .stSelectbox, .stNumberInput {
+    background-color: #1e1e1e !important;  /* Fondo oscuro */
+    color: #ffffff !important;  /* Texto blanco */
+    border: 1px solid #444 !important;  /* Borde gris suave */
+    border-radius: 8px !important;
+}
 
-    /* Placeholders claros */
-    ::placeholder {
-        color: #AAA !important;
-    }
+/* Evita que el color afecte al fondo principal */
+.stApp {
+    background: transparent !important;
+}
 
-    /* Tablas y textos dentro */
-    .stDataFrame, .stTable {
-        background-color: rgba(30,30,30,0.7) !important;
-        color: #EEE !important;
-    }
+/* Etiquetas, títulos y textos */
+label, .stMarkdown, .stText, .stSelectbox label {
+    color: #f5f5f5 !important;
+}
+</style>
+""", unsafe_allow_html=True)
 
-    /* Botones */
-    .stButton>button {
-        background-color: #1E90FF !important;
-        color: white !important;
-        border-radius: 8px;
-        border: none;
-    }
-
-    button:hover {
-        opacity: 0.9 !important;
-        transform: scale(1.02);
-        transition: all 0.2s ease;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
 
 # ==============================
-# CONTENIDO DE LA APP
+# Título de la aplicación
 # ==============================
-with st.container():
-    st.markdown('<div class="contenido"></div>', unsafe_allow_html=True)
+st.title("Registro de Horas Extra 🕒")
 
-# ----------------------
-# BLOQUE DE DATOS GENERALES
-# ----------------------
-st.subheader("REGISTRO DE HORAS EXTRA")
+# ==============================
+# Formulario principal
+# ==============================
+with st.form("registro_form"):
+    fecha = st.date_input("Fecha")
+    hora_inicio = st.time_input("Hora de inicio")
+    hora_fin = st.time_input("Hora de fin")
+    descripcion = st.text_area("Descripción de la tarea realizada")
+    enviado = st.form_submit_button("Registrar")
 
-nombre_empleado = st.text_input("Ingrese su nombre", value="")
-sueldo_mensual = st.text_input("Ingrese su sueldo mensual (S/):", value="")
+# ==============================
+# Procesamiento
+# ==============================
+if enviado:
+    st.session_state["registro_horas"][fecha] = {
+        "hora_inicio": hora_inicio,
+        "hora_fin": hora_fin,
+        "descripcion": descripcion
+    }
+    st.success("✅ Registro guardado correctamente.")
 
-fecha_seleccionada = st.date_input("Seleccione la fecha (día, mes y año)")
-
-# ----------------------
-# BLOQUE HORAS EXTRA
-# ----------------------
-if fecha_seleccionada:
-    fecha_str = fecha_seleccionada.strftime("%Y-%m-%d")
-
-    if st.session_state["ultima_fecha"] is not None and st.session_state["ultima_hora"] not in [None, ""]:
-        try:
-            st.session_state["registro_horas"][st.session_state["ultima_fecha"]] = float(st.session_state["ultima_hora"])
-        except:
-            st.session_state["registro_horas"][st.session_state["ultima_fecha"]] = 0
-
-    valor_guardado = st.session_state["registro_horas"].get(fecha_str, "")
-    horas_extra_val = st.text_input(
-        f"Horas extra del día {fecha_str}:",
-        value=str(valor_guardado) if valor_guardado != "" else ""
-    )
-
-    st.session_state["ultima_fecha"] = fecha_str
-    st.session_state["ultima_hora"] = horas_extra_val
-
-# ----------------------
-# BOTONES CALCULAR Y LIMPIAR
-# ----------------------
-col1, col2 = st.columns(2)
-
-with col1:
-    if st.button("Calcular Horas Extra"):
-        if nombre_empleado.strip() != "" and sueldo_mensual.strip() != "":
-            try:
-                sueldo_mensual_val = float(sueldo_mensual)
-            except:
-                st.warning("⚠️ El sueldo debe ser un número válido.")
-                st.stop()
-
-            if st.session_state["ultima_fecha"] is not None and st.session_state["ultima_hora"] not in [None, ""]:
-                try:
-                    st.session_state["registro_horas"][st.session_state["ultima_fecha"]] = float(st.session_state["ultima_hora"])
-                except:
-                    st.session_state["registro_horas"][st.session_state["ultima_fecha"]] = 0
-
-            valor_hora = round(sueldo_mensual_val / (8 * 5 * 4.33), 2)
-            registros = []
-
-            anio = fecha_seleccionada.year
-            peru_feriados = holidays.Peru(years=anio)
-            feriados = [f.strftime("%Y-%m-%d") for f in peru_feriados.keys()]
-
-            for f_str, h in st.session_state["registro_horas"].items():
-                if h not in ["", None]:
-                    h = float(h)
-                    fecha = datetime.strptime(f_str, "%Y-%m-%d")
-                    dia_semana = fecha.weekday()
-                    es_domingo_o_feriado = dia_semana == 6 or f_str in feriados
-
-                    if es_domingo_o_feriado:
-                        pago = round(h * valor_hora * 2, 2)
-                    else:
-                        if h <= 2:
-                            pago = round(h * valor_hora * 1.25, 2)
-                        else:
-                            pago = round(2 * valor_hora * 1.25 + (h - 2) * valor_hora * 1.35, 2)
-
-                    registros.append({
-                        "Empleado": nombre_empleado,
-                        "Fecha": f_str,
-                        "Horas Extra": h,
-                        "Pago Extra (S/)": pago
-                    })
-
-            if registros:
-                df = pd.DataFrame(registros)
-                st.subheader("📊 Reporte de Horas Extra")
-                st.dataframe(df)
-                st.write("💰 **Total de horas extra (S/):**", df["Pago Extra (S/)"].sum())
-
-                output = BytesIO()
-                df.to_excel(output, index=False, engine='openpyxl')
-                output.seek(0)
-
-                st.download_button(
-                    label="📥 Descargar Excel",
-                    data=output,
-                    file_name="HorasExtra_Mes_Reporte.xlsx",
-                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                )
-            else:
-                st.info("No se ingresaron horas extra.")
-        else:
-            st.warning("⚠️ Complete todos los campos.")
-
-with col2:
-    if st.button("Limpiar Hrs Ext."):
-        st.session_state["registro_horas"].clear()
-        st.session_state["ultima_fecha"] = None
-        st.session_state["ultima_hora"] = None
-        st.success("✅ Historial de horas extra borrado correctamente")
+# ==============================
+# Mostrar historial
+# ==============================
+st.subheader("Historial de registros")
+if st.session_state["registro_horas"]:
+    df = pd.DataFrame.from_dict(st.session_state["registro_horas"], orient="index")
+    st.dataframe(df)
+else:
+    st.info("No hay registros aún.")
