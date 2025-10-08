@@ -5,10 +5,10 @@ import holidays
 from io import BytesIO
 
 # ==============================
-# CONFIGURACIÓN INICIAL DE SESIÓN
+# Configuración inicial de sesión
 # ==============================
 if "registro_horas" not in st.session_state:
-    st.session_state["registro_horas"] = {}
+    st.session_state["registro_horas"] = {}  # Guarda todas las horas ingresadas
 
 if "ultima_fecha" not in st.session_state:
     st.session_state["ultima_fecha"] = None
@@ -29,119 +29,143 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# ==============================
+# ----------------------
 # CONFIGURACIÓN DE LA PÁGINA
-# ==============================
+# ----------------------
 st.set_page_config(
     page_title="Registro de Horas Extra",
     page_icon="⏰",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="expanded"
 )
 
 # ==============================
-# ESTILOS UNIFICADOS Y RESPONSIVOS
+# ESTILOS: MODO OSCURO
 # ==============================
 st.markdown(
     """
     <style>
-    /* Fondo fijo y centrado */
+    /* Fondo oscuro con logo */
     .stApp {
-        background: linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 40%),
+        background: linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.9) 100%),
                     url('https://i.postimg.cc/ZnPMVtSs/RIVERPAZ.png');
         background-size: cover;
         background-position: center;
-        background-attachment: fixed;
-        min-height: 100vh;
-
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
+        background-attachment: scroll;
+        color: #EAEAEA;
     }
 
-    /* Contenedor principal */
+    /* Contenedor principal difuminado */
     .contenido {
-        padding: 70px 25px;
-        border-radius: 20px;
-        backdrop-filter: blur(8px);
-        background-color: rgba(255, 255, 255, 0.25);
-        width: 95%;
-        max-width: 600px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        margin-top: 70vh;
+        padding: 20px;
+        border-radius: 10px;
+        backdrop-filter: blur(10px);
+        background-color: rgba(20, 20, 20, 0.6);
+        max-width: 90%;
+        margin-left: auto;
+        margin-right: auto;
+        color: #F0F0F0;
     }
 
-    /* Quitar padding interno de Streamlit */
+    /* Quitar padding extra de Streamlit */
     .block-container {
-        padding-top: 0rem !important;
-        padding-bottom: 0rem !important;
-        margin: 0;
+        padding-top: 0rem;
     }
 
-    /* Inputs y tipografía */
+    /* Inputs oscuros */
     input, .stTextInput>div>div>input {
-        font-size: 1rem !important;
+        background-color: rgba(40, 40, 40, 0.9);
+        color: #EAEAEA;
+        border: 1px solid #555;
+        border-radius: 6px;
+        padding: 8px;
+        font-size: 1rem;
     }
 
-    h2, h3, h4, label {
-        color: #000000;
-        text-align: center;
+    /* Placeholders más claros */
+    ::placeholder {
+        color: #AAA !important;
     }
 
-    /* Botones más visibles */
-    button[kind="primary"] {
-        border-radius: 12px !important;
-        font-weight: bold !important;
-        padding: 0.6rem 1.2rem !important;
+    /* Encabezados */
+    h1, h2, h3, h4, h5, h6 {
+        color: #FFFFFF !important;
     }
 
-    /* Versión móvil */
-    @media (max-width: 768px) {
-        .contenido {
-            width: 90%;
-            padding: 15px;
-        }
-        input, .stTextInput>div>div>input {
-            font-size: 0.9rem !important;
-        }
+    /* Tablas (modo oscuro uniforme) */
+    .stDataFrame, .stTable {
+        background-color: rgba(30, 30, 30, 0.8) !important;
+        color: #EEE !important;
     }
+
+    /* Botones */
+    button[kind="primary"], .stButton>button {
+        background-color: #1E90FF !important;
+        color: white !important;
+        border-radius: 8px;
+        border: none;
+    }
+
+    button[kind="secondary"], .stDownloadButton>button {
+        background-color: #333 !important;
+        color: #EEE !important;
+        border-radius: 8px;
+        border: 1px solid #666 !important;
+    }
+
+    /* Hover de botones */
+    button:hover {
+        opacity: 0.9 !important;
+        transform: scale(1.02);
+        transition: all 0.2s ease;
+    }
+
     </style>
     """,
     unsafe_allow_html=True
 )
 
 # ==============================
-# INTERFAZ DE LA APLICACIÓN
+# CONTENIDO DE LA APP
 # ==============================
-st.markdown('<div class="contenido">', unsafe_allow_html=True)
+with st.container():
+    st.markdown('<div class="contenido"></div>', unsafe_allow_html=True)
 
-st.subheader("⏰ REGISTRO DE HORAS EXTRA")
+# ----------------------
+# BLOQUE DE DATOS GENERALES
+# ----------------------
+st.subheader("REGISTRO DE HORAS EXTRA")
 
 nombre_empleado = st.text_input("Ingrese su nombre", value="")
 sueldo_mensual = st.text_input("Ingrese su sueldo mensual (S/):", value="")
+
 fecha_seleccionada = st.date_input("Seleccione la fecha (día, mes y año)")
 
+# ----------------------
+# BLOQUE HORAS EXTRA
+# ----------------------
 if fecha_seleccionada:
     fecha_str = fecha_seleccionada.strftime("%Y-%m-%d")
 
-    # Guardar valor anterior
     if st.session_state["ultima_fecha"] is not None and st.session_state["ultima_hora"] not in [None, ""]:
         try:
             st.session_state["registro_horas"][st.session_state["ultima_fecha"]] = float(st.session_state["ultima_hora"])
         except:
             st.session_state["registro_horas"][st.session_state["ultima_fecha"]] = 0
 
-    # Mostrar valor guardado o vacío
     valor_guardado = st.session_state["registro_horas"].get(fecha_str, "")
     horas_extra_val = st.text_input(
         f"Horas extra del día {fecha_str}:",
         value=str(valor_guardado) if valor_guardado != "" else ""
     )
 
-    # Guardar temporalmente
     st.session_state["ultima_fecha"] = fecha_str
     st.session_state["ultima_hora"] = horas_extra_val
 
+# ----------------------
+# BOTONES CALCULAR Y LIMPIAR
+# ----------------------
 col1, col2 = st.columns(2)
 
 with col1:
@@ -153,14 +177,12 @@ with col1:
                 st.warning("⚠️ El sueldo debe ser un número válido.")
                 st.stop()
 
-            # Guardar última fecha
             if st.session_state["ultima_fecha"] is not None and st.session_state["ultima_hora"] not in [None, ""]:
                 try:
                     st.session_state["registro_horas"][st.session_state["ultima_fecha"]] = float(st.session_state["ultima_hora"])
                 except:
                     st.session_state["registro_horas"][st.session_state["ultima_fecha"]] = 0
 
-            # Valor hora: 8h x 5d x 4.33 sem
             valor_hora = round(sueldo_mensual_val / (8 * 5 * 4.33), 2)
             registros = []
 
@@ -175,7 +197,6 @@ with col1:
                     dia_semana = fecha.weekday()
                     es_domingo_o_feriado = dia_semana == 6 or f_str in feriados
 
-                    # Cálculo pago
                     if es_domingo_o_feriado:
                         pago = round(h * valor_hora * 2, 2)
                     else:
@@ -197,7 +218,6 @@ with col1:
                 st.dataframe(df)
                 st.write("💰 **Total de horas extra (S/):**", df["Pago Extra (S/)"].sum())
 
-                # Descargar Excel
                 output = BytesIO()
                 df.to_excel(output, index=False, engine='openpyxl')
                 output.seek(0)
@@ -219,5 +239,3 @@ with col2:
         st.session_state["ultima_fecha"] = None
         st.session_state["ultima_hora"] = None
         st.success("✅ Historial de horas extra borrado correctamente")
-
-st.markdown('</div>', unsafe_allow_html=True)
