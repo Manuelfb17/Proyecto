@@ -40,42 +40,28 @@ st.set_page_config(
 )
 
 # ==============================
-# ESTILOS: MODO OSCURO
+# ESTILOS: modo oscuro solo para texto e inputs
 # ==============================
 st.markdown(
     """
     <style>
-    /* Fondo oscuro con logo */
+    /* Mantiene tu fondo original */
     .stApp {
-        background: linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.9) 100%),
+        background: linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 40%),
                     url('https://i.postimg.cc/ZnPMVtSs/RIVERPAZ.png');
         background-size: cover;
         background-position: center;
         background-attachment: scroll;
-        color: #EAEAEA;
     }
 
-    /* Contenedor principal difuminado */
-    .contenido {
-        margin-top: 70vh;
-        padding: 20px;
-        border-radius: 10px;
-        backdrop-filter: blur(10px);
-        background-color: rgba(20, 20, 20, 0.6);
-        max-width: 90%;
-        margin-left: auto;
-        margin-right: auto;
-        color: #F0F0F0;
-    }
-
-    /* Quitar padding extra de Streamlit */
-    .block-container {
-        padding-top: 0rem;
+    /* Texto general en claro */
+    .stApp, .stMarkdown, .stText, .stSubheader, .stHeader, label, h1, h2, h3, h4, h5, h6 {
+        color: #F2F2F2 !important;
     }
 
     /* Inputs oscuros */
     input, .stTextInput>div>div>input {
-        background-color: rgba(40, 40, 40, 0.9);
+        background-color: rgba(30, 30, 30, 0.85);
         color: #EAEAEA;
         border: 1px solid #555;
         border-radius: 6px;
@@ -83,44 +69,30 @@ st.markdown(
         font-size: 1rem;
     }
 
-    /* Placeholders más claros */
+    /* Placeholders claros */
     ::placeholder {
         color: #AAA !important;
     }
 
-    /* Encabezados */
-    h1, h2, h3, h4, h5, h6 {
-        color: #FFFFFF !important;
-    }
-
-    /* Tablas (modo oscuro uniforme) */
+    /* Tablas y textos dentro */
     .stDataFrame, .stTable {
-        background-color: rgba(30, 30, 30, 0.8) !important;
+        background-color: rgba(30,30,30,0.7) !important;
         color: #EEE !important;
     }
 
     /* Botones */
-    button[kind="primary"], .stButton>button {
+    .stButton>button {
         background-color: #1E90FF !important;
         color: white !important;
         border-radius: 8px;
         border: none;
     }
 
-    button[kind="secondary"], .stDownloadButton>button {
-        background-color: #333 !important;
-        color: #EEE !important;
-        border-radius: 8px;
-        border: 1px solid #666 !important;
-    }
-
-    /* Hover de botones */
     button:hover {
         opacity: 0.9 !important;
         transform: scale(1.02);
         transition: all 0.2s ease;
     }
-
     </style>
     """,
     unsafe_allow_html=True
