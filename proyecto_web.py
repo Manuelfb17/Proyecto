@@ -40,33 +40,31 @@ st.set_page_config(
 )
 
 # ==============================
-# ESTILOS: fondo dinámico + modo oscuro parcial
+# ESTILOS: fondo igual en web y móvil
 # ==============================
 st.markdown(
     """
     <style>
-    /* Fondo general (para escritorio) */
+    /* Fondo general (web y móvil idéntico) */
     .stApp {
-        background: linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 40%),
-                    url('https://i.postimg.cc/ZnPMVtSs/RIVERPAZ.png');
+        background: url('https://i.postimg.cc/7h9C7YK2/IMG-APP.png');
         background-size: cover;
         background-position: center center;
         background-attachment: fixed;
     }
 
-    /* Fondo especial para celulares */
+    /* Ajustes para móviles (mantiene mismo fondo sin oscurecer) */
     @media (max-width: 768px) {
         .stApp {
-            background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.6) 50%),
-                        url('https://i.postimg.cc/7h9C7YK2/IMG-APP.png');
+            background: url('https://i.postimg.cc/7h9C7YK2/IMG-APP.png');
             background-size: cover;
-            background-position: top center;
+            background-position: center center;
             background-attachment: scroll;
         }
 
         .contenido {
             margin-top: 40vh !important;
-            background-color: rgba(0,0,0,0.4) !important;
+            background-color: rgba(255,255,255,0.2) !important;
         }
 
         input, textarea, select {
