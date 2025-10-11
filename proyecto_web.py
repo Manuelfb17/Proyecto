@@ -8,7 +8,7 @@ from io import BytesIO
 # Configuración inicial de sesión
 # ==============================
 if "registro_horas" not in st.session_state:
-    st.session_state["registro_horas"] = {}  # Guarda todas las horas ingresadas
+    st.session_state["registro_horas"] = {}
 
 if "ultima_fecha" not in st.session_state:
     st.session_state["ultima_fecha"] = None
@@ -40,20 +40,20 @@ st.set_page_config(
 )
 
 # ==============================
-# ESTILOS: fondo igual en web y móvil
+# ESTILOS (Fondos diferenciados)
 # ==============================
 st.markdown(
     """
     <style>
-    /* Fondo general (web y móvil idéntico) */
+    /* Fondo para escritorio */
     .stApp {
-        background: url('https://i.postimg.cc/7h9C7YK2/IMG-APP.png');
+        background: url('https://i.postimg.cc/ZnPMVtSs/RIVERPAZ.png');
         background-size: cover;
         background-position: center center;
         background-attachment: fixed;
     }
 
-    /* Ajustes para móviles (mantiene mismo fondo sin oscurecer) */
+    /* Fondo para móviles */
     @media (max-width: 768px) {
         .stApp {
             background: url('https://i.postimg.cc/7h9C7YK2/IMG-APP.png');
@@ -61,32 +61,23 @@ st.markdown(
             background-position: center center;
             background-attachment: scroll;
         }
-
-        .contenido {
-            margin-top: 40vh !important;
-            background-color: rgba(255,255,255,0.2) !important;
-        }
-
-        input, textarea, select {
-            font-size: 1.1rem !important;
-        }
     }
 
-    /* Contenedor principal */
+    /* Contenedor del contenido */
     .contenido {
         margin-top: 70vh;
         padding: 20px;
         border-radius: 10px;
         backdrop-filter: blur(8px);
-        background-color: rgba(255,255,255,0.2);
+        background-color: rgba(255,255,255,0.25);
         max-width: 90%;
         margin-left: auto;
         margin-right: auto;
     }
 
-    /* Quitar padding extra de Streamlit */
+    /* Eliminar padding superior */
     .block-container {
-        padding-top: 0rem;
+        padding-top: 0rem !important;
     }
 
     /* Texto blanco */
@@ -97,7 +88,7 @@ st.markdown(
     /* Inputs oscuros */
     input, textarea, select, .stTextInput>div>div>input, 
     .stNumberInput>div>div>input, .stDateInput input {
-        background-color: #1e1e1e !important;
+        background-color: rgba(30,30,30,0.85) !important;
         color: white !important;
         border-radius: 8px !important;
         border: 1px solid #555 !important;
@@ -105,12 +96,12 @@ st.markdown(
 
     /* Placeholder gris */
     ::placeholder {
-        color: #bbbbbb !important;
+        color: #cccccc !important;
         opacity: 1 !important;
     }
 
     input, .stTextInput>div>div>input {
-        font-size: 1rem;
+        font-size: 1rem !important;
     }
     </style>
     """,
@@ -123,22 +114,21 @@ st.markdown(
 with st.container():
     st.markdown('<div class="contenido"></div>', unsafe_allow_html=True)
 
-# ----------------------
-# BLOQUE DE DATOS GENERALES
-# ----------------------
 st.subheader("REGISTRO DE HORAS EXTRA")
 
+# ----------------------
+# ENTRADAS
+# ----------------------
 nombre_empleado = st.text_input("Ingrese su nombre", value="")
 sueldo_mensual = st.text_input("Ingrese su sueldo mensual (S/):", value="")
 fecha_seleccionada = st.date_input("Seleccione la fecha (día, mes y año)")
 
 # ----------------------
-# BLOQUE HORAS EXTRA
+# REGISTRO DE HORAS
 # ----------------------
 if fecha_seleccionada:
     fecha_str = fecha_seleccionada.strftime("%Y-%m-%d")
 
-    # Guardar valor anterior
     if st.session_state["ultima_fecha"] is not None and st.session_state["ultima_hora"] not in [None, ""]:
         try:
             st.session_state["registro_horas"][st.session_state["ultima_fecha"]] = float(st.session_state["ultima_hora"])
