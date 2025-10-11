@@ -45,13 +45,33 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-    /* Fondo dinámico */
+    /* Fondo general (para escritorio) */
     .stApp {
         background: linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 40%),
                     url('https://i.postimg.cc/ZnPMVtSs/RIVERPAZ.png');
         background-size: cover;
-        background-position: center;
-        background-attachment: scroll;
+        background-position: center center;
+        background-attachment: fixed;
+    }
+
+    /* Fondo especial para celulares */
+    @media (max-width: 768px) {
+        .stApp {
+            background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.6) 50%),
+                        url('https://i.postimg.cc/7h9C7YK2/IMG-APP.png');
+            background-size: cover;
+            background-position: top center;
+            background-attachment: scroll;
+        }
+
+        .contenido {
+            margin-top: 40vh !important;
+            background-color: rgba(0,0,0,0.4) !important;
+        }
+
+        input, textarea, select {
+            font-size: 1.1rem !important;
+        }
     }
 
     /* Contenedor principal */
@@ -71,26 +91,26 @@ st.markdown(
         padding-top: 0rem;
     }
 
-    /* Todo el texto en color blanco */
+    /* Texto blanco */
     body, .stApp, .stMarkdown, .stText, label, h1, h2, h3, p, span, div {
         color: white !important;
     }
 
-    /* Inputs, selects, date inputs con fondo oscuro */
-    input, textarea, select, .stTextInput>div>div>input, .stNumberInput>div>div>input, .stDateInput input {
+    /* Inputs oscuros */
+    input, textarea, select, .stTextInput>div>div>input, 
+    .stNumberInput>div>div>input, .stDateInput input {
         background-color: #1e1e1e !important;
         color: white !important;
         border-radius: 8px !important;
         border: 1px solid #555 !important;
     }
 
-    /* Placeholder de texto (gris claro) */
+    /* Placeholder gris */
     ::placeholder {
         color: #bbbbbb !important;
         opacity: 1 !important;
     }
 
-    /* Ajuste de texto en móviles */
     input, .stTextInput>div>div>input {
         font-size: 1rem;
     }
