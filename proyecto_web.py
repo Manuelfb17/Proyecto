@@ -40,7 +40,7 @@ st.set_page_config(
 )
 
 # ==============================
-# ESTILOS (Fondos diferenciados)
+# ESTILOS (Fondos y botones)
 # ==============================
 st.markdown(
     """
@@ -102,6 +102,32 @@ st.markdown(
 
     input, .stTextInput>div>div>input {
         font-size: 1rem !important;
+    }
+
+    /* ===== BOTONES OSCUROS ===== */
+    div.stButton > button {
+        background-color: rgba(0, 0, 0, 0.7) !important;
+        color: white !important;
+        border: 1px solid #444 !important;
+        border-radius: 8px !important;
+        font-weight: 600 !important;
+        padding: 0.6rem 1rem !important;
+        transition: all 0.2s ease-in-out !important;
+    }
+
+    div.stButton > button:hover {
+        background-color: rgba(30, 30, 30, 0.9) !important;
+        border: 1px solid #888 !important;
+        transform: scale(1.03);
+    }
+
+    /* Para móviles: botones más grandes */
+    @media (max-width: 768px) {
+        div.stButton > button {
+            width: 100% !important;
+            font-size: 1.1rem !important;
+            padding: 0.8rem !important;
+        }
     }
     </style>
     """,
