@@ -40,32 +40,58 @@ st.set_page_config(
 )
 
 # ==============================
-# ESTILOS (Fondos y botones)
+# ENCABEZADO FIJO (PARTE SUPERIOR DEL FONDO)
+# ==============================
+st.markdown('<div class="header-fijo"></div>', unsafe_allow_html=True)
+
+# ==============================
+# ESTILOS (Fondos, botones y diseño)
 # ==============================
 st.markdown(
     """
     <style>
-    /* Fondo para escritorio */
+    /* ===== FONDO GENERAL ===== */
     .stApp {
-        background: url('https://i.postimg.cc/ZnPMVtSs/RIVERPAZ.png');
+        background: url('https://i.postimg.cc/ZnPMVtSs/RIVERPAZ.png') no-repeat center top;
         background-size: cover;
-        background-position: center center;
         background-attachment: fixed;
     }
 
-    /* Fondo para móviles */
+    /* ===== FONDO MÓVIL ===== */
     @media (max-width: 768px) {
         .stApp {
-            background: url('https://i.postimg.cc/7h9C7YK2/IMG-APP.png');
+            background: url('https://i.postimg.cc/7h9C7YK2/IMG-APP.png') no-repeat center top;
             background-size: cover;
-            background-position: center center;
             background-attachment: scroll;
         }
     }
 
-    /* Contenedor del contenido */
+    /* ===== ENCABEZADO FIJO ===== */
+    .header-fijo {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 30vh;
+        background: inherit;
+        background-size: cover;
+        background-position: top center;
+        z-index: 0;
+    }
+
+    .header-fijo::after {
+        content: "";
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(3px);
+    }
+
+    /* ===== CONTENIDO ===== */
     .contenido {
-        margin-top: 70vh;
+        position: relative;
+        z-index: 1;
+        margin-top: 35vh;
         padding: 20px;
         border-radius: 10px;
         backdrop-filter: blur(8px);
@@ -75,17 +101,16 @@ st.markdown(
         margin-right: auto;
     }
 
-    /* Eliminar padding superior */
     .block-container {
         padding-top: 0rem !important;
     }
 
-    /* Texto blanco */
+    /* ===== TEXTO ===== */
     body, .stApp, .stMarkdown, .stText, label, h1, h2, h3, p, span, div {
         color: white !important;
     }
 
-    /* Inputs oscuros */
+    /* ===== INPUTS OSCUROS ===== */
     input, textarea, select, .stTextInput>div>div>input, 
     .stNumberInput>div>div>input, .stDateInput input {
         background-color: rgba(30,30,30,0.85) !important;
@@ -94,14 +119,9 @@ st.markdown(
         border: 1px solid #555 !important;
     }
 
-    /* Placeholder gris */
     ::placeholder {
         color: #cccccc !important;
         opacity: 1 !important;
-    }
-
-    input, .stTextInput>div>div>input {
-        font-size: 1rem !important;
     }
 
     /* ===== BOTONES OSCUROS ===== */
@@ -121,12 +141,20 @@ st.markdown(
         transform: scale(1.03);
     }
 
-    /* Para móviles: botones más grandes */
+    /* ===== MÓVIL ===== */
     @media (max-width: 768px) {
         div.stButton > button {
             width: 100% !important;
             font-size: 1.1rem !important;
             padding: 0.8rem !important;
+        }
+
+        .header-fijo {
+            height: 25vh;
+        }
+
+        .contenido {
+            margin-top: 30vh;
         }
     }
     </style>
@@ -137,8 +165,7 @@ st.markdown(
 # ==============================
 # CONTENIDO DE LA APP
 # ==============================
-with st.container():
-    st.markdown('<div class="contenido"></div>', unsafe_allow_html=True)
+st.markdown('<div class="contenido">', unsafe_allow_html=True)
 
 st.subheader("REGISTRO DE HORAS EXTRA")
 
@@ -246,3 +273,5 @@ with col2:
         st.session_state["ultima_fecha"] = None
         st.session_state["ultima_hora"] = None
         st.success("✅ Historial de horas extra borrado correctamente")
+
+st.markdown("</div>", unsafe_allow_html=True)
